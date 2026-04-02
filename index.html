@@ -16,6 +16,14 @@
             --accent-color: #87CEEB; /* Sky Blue */
             --accent-hover: #ADD8E6; /* Lighter Sky Blue */
             --border-color: rgba(255, 255, 255, 0.1);
+            --schedule-bg: rgba(135, 206, 235, 0.1); /* Light blue tint for schedule */
+            
+            /* Official Social Media Brand Colors */
+            --youtube-red: #FF0000;
+            --facebook-blue: #1877F2;
+            --instagram-gradient: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+            --tiktok-gradient: linear-gradient(45deg, #00F2EA, #FF0050);
+            --spotify-green: #1DB954;
         }
 
         body {
@@ -103,6 +111,55 @@
             margin: 0 auto;
         }
 
+        #tiktok-schedule {
+            text-align: center;
+        }
+
+        .schedule-card {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: var(--schedule-bg);
+            border: 1px solid var(--accent-color);
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(135, 206, 235, 0.2);
+        }
+
+        .schedule-card h4 {
+            font-size: 1.5em;
+            color: var(--accent-color);
+            margin-top: 0;
+        }
+
+        .schedule-time {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 15px 0;
+        }
+
+        .schedule-note {
+            font-style: italic;
+            color: var(--text-light);
+        }
+
+        .tiktok-link-btn {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 25px;
+            background: var(--tiktok-gradient);
+            color: var(--text-dark);
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .tiktok-link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 80, 0.3);
+        }
+
         #music .video-wrapper {
             position: relative;
             padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
@@ -121,6 +178,48 @@
             width: 100%;
             height: 100%;
             border: 0;
+        }
+
+        #support {
+            text-align: center;
+        }
+
+        .qr-container {
+            display: inline-block;
+            padding: 20px;
+            background-color: var(--text-dark);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(135, 206, 235, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .qr-code {
+            width: 250px;
+            height: 250px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .payment-note {
+            max-width: 700px;
+            margin: 0 auto 20px auto;
+            font-size: 1.1em;
+        }
+
+        .payment-methods {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .payment-methods span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1em;
+            color: var(--accent-color);
         }
 
         #contact form {
@@ -172,17 +271,80 @@
             margin-top: 30px;
         }
 
-        .social-links a {
-            display: inline-block;
+        /* Custom Social Media Icon Styles - Matching Official App Logos */
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
             margin: 0 15px;
-            color: var(--accent-color);
-            font-size: 2.5em; /* Icon size */
-            transition: color 0.3s ease, transform 0.2s ease;
+            border-radius: 50%;
+            color: white;
+            font-size: 2.5em;
             text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .social-links a:hover {
-            color: var(--accent-hover);
+        /* YouTube Icon */
+        .social-icon.youtube {
+            background-color: var(--youtube-red);
+        }
+        .social-icon.youtube:hover {
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            transform: scale(1.1);
+        }
+
+        /* Facebook Icon */
+        .social-icon.facebook {
+            background-color: var(--facebook-blue);
+        }
+        .social-icon.facebook:hover {
+            box-shadow: 0 0 20px rgba(24, 119, 242, 0.5);
+            transform: scale(1.1);
+        }
+
+        /* Instagram Icon */
+        .social-icon.instagram {
+            background: var(--instagram-gradient);
+        }
+        .social-icon.instagram::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 2px solid white;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .social-icon.instagram i {
+            position: relative;
+            z-index: 2;
+        }
+        .social-icon.instagram:hover {
+            box-shadow: 0 0 20px rgba(163, 51, 200, 0.5);
+            transform: scale(1.1);
+        }
+
+        /* TikTok Icon */
+        .social-icon.tiktok {
+            background: var(--tiktok-gradient);
+        }
+        .social-icon.tiktok:hover {
+            box-shadow: 0 0 20px rgba(0, 242, 234, 0.5);
+            transform: scale(1.1);
+        }
+
+        /* Spotify Icon */
+        .social-icon.spotify {
+            background-color: var(--spotify-green);
+        }
+        .social-icon.spotify:hover {
+            box-shadow: 0 0 20px rgba(29, 185, 84, 0.5);
             transform: scale(1.1);
         }
 
@@ -213,7 +375,19 @@
                 width: 150px;
                 height: 150px;
             }
-            .social-links a {
+            .qr-code {
+                width: 200px;
+                height: 200px;
+            }
+            .schedule-card {
+                padding: 20px;
+            }
+            .schedule-time {
+                font-size: 1.2em;
+            }
+            .social-icon {
+                width: 60px;
+                height: 60px;
                 font-size: 2em;
                 margin: 0 10px;
             }
@@ -233,9 +407,19 @@
                 width: 120px;
                 height: 120px;
             }
+            .qr-code {
+                width: 180px;
+                height: 180px;
+            }
+            .social-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5em;
+                margin: 0 8px;
+            }
         }
     </style>
-    <!-- Font Awesome for Social Media Icons -->
+    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -256,6 +440,23 @@
             </p>
         </section>
 
+        <section id="tiktok-schedule">
+            <h3>TikTok Live Schedule</h3>
+            <div class="schedule-card">
+                <h4><i class="fab fa-tiktok"></i> Join My Morning Worship Live!</h4>
+                <p>Hi! Please join my regular live sessions to start your day with praise and worship.</p>
+                <div class="schedule-time">
+                    <i class="fas fa-clock"></i> Every Morning • 4:00 AM or 5:00 AM (Philippine Time)
+                </div>
+                <p class="schedule-note">
+                    *Schedule may vary slightly depending on special occasions or events. Follow my TikTok account for real-time updates!
+                </p>
+                <a href="https://www.tiktok.com/@jayb_worship" target="_blank" class="tiktok-link-btn">
+                    <i class="fab fa-tiktok"></i> Visit My TikTok Page
+                </a>
+            </div>
+        </section>
+
         <section id="music">
             <h3>Featured Music</h3>
             <div class="video-wrapper">
@@ -268,7 +469,30 @@
                 </iframe>
             </div>
             <p style="text-align: center; margin-top: 30px;">
-                <a href="https://www.youtube.com/@JayBWorship" target="_blank" style="color: var(--accent-color); text-decoration: none; font-weight: 600;">Explore More Music &rarr;</a>
+                <a href="https://www.youtube.com/@JayBWorship" target="_blank" style="color: var(--youtube-red); text-decoration: none; font-weight: 600;">Explore More Music on YouTube &rarr;</a>
+            </p>
+        </section>
+
+        <section id="support">
+            <h3>Support the Ministry</h3>
+            <p class="payment-note">
+                Your support helps us continue creating worship music and sharing God's love with more people. Scan the QR code below to give any amount – it works with GCash, Maya, and other digital payment apps!
+            </p>
+            
+            <div class="qr-container">
+                <!-- Replace with your actual unified QR code image link -->
+                <img src="https://via.placeholder.com/250/FFFFFF/1A1A2E?text=QR+CODE" alt="Unified Payment QR Code" class="qr-code">
+            </div>
+
+            <div class="payment-methods">
+                <span><i class="fab fa-credit-card"></i> GCash</span>
+                <span><i class="fab fa-credit-card"></i> Maya</span>
+                <span><i class="fas fa-money-bill-wave"></i> Bank Transfers</span>
+                <span><i class="fab fa-paypal"></i> PayPal</span>
+            </div>
+
+            <p style="margin-top: 20px; font-style: italic;">
+                For bank transfers or other payment options, please send us a message via the contact form below.
             </p>
         </section>
 
@@ -289,12 +513,22 @@
         <section id="social">
             <h3>Connect With JayB</h3>
             <div class="social-links">
-                <!-- Mga mayroon nang tamang links - pwede mong palitan kung meron nang eksaktong profile -->
-                <a href="https://www.youtube.com/@JayBWorship" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                <a href="https://www.facebook.com/JayBWorshipOfficial" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                <a href="https://www.instagram.com/jayb_worship" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="https://www.tiktok.com/@jayb_worship" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
-                <a href="https://open.spotify.com/artist/123456789" target="_blank" aria-label="Spotify"><i class="fab fa-spotify"></i></a>
+                <!-- Custom Styled Social Icons Matching Official App Logos -->
+                <a href="https://www.youtube.com/@JayBWorship" target="_blank" aria-label="YouTube" class="social-icon youtube">
+                    <i class="fab fa-youtube"></i>
+                </a>
+                <a href="https://www.facebook.com/JayBWorshipOfficial" target="_blank" aria-label="Facebook" class="social-icon facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://www.instagram.com/jayb_worship" target="_blank" aria-label="Instagram" class="social-icon instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://www.tiktok.com/@jayb_worship" target="_blank" aria-label="TikTok" class="social-icon tiktok">
+                    <i class="fab fa-tiktok"></i>
+                </a>
+                <a href="https://open.spotify.com/artist/123456789" target="_blank" aria-label="Spotify" class="social-icon spotify">
+                    <i class="fab fa-spotify"></i>
+                </a>
             </div>
         </section>
 
