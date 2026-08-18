@@ -132,7 +132,6 @@
             gap: 6px;
         }
 
-        /* ERROR BANNER STYLE */
         .error-message-box {
             display: none;
             background-color: rgba(239, 68, 68, 0.15);
@@ -146,7 +145,6 @@
             line-height: 1.4;
         }
 
-        /* BATTERY RULES CARD STYLE */
         .battery-rules-card {
             background-color: #1d4ed8;
             color: #ffffff;
@@ -433,7 +431,6 @@
 </head>
 <body>
 
-<!-- TOP CONTROLS PINNED OUTSIDE THE CONTAINER -->
 <div class="top-controls">
     <button id="theme-btn" onclick="toggleTheme()">☀️ Theme</button>
     <button class="btn-danger" onclick="clearData()">Clear Data</button>
@@ -449,7 +446,8 @@
         <div class="header-meta">
             <div><strong>Project ID:</strong> <span id="proj-id-disp">SPV-2608-0001</span></div>
             <div><strong>Date:</strong> <span id="current-date">--</span></div>
-            <div><strong>Lead Owner:</strong> Romil Daño</div>
+            <div><strong>Lead Designer:</strong> Romil Daño</div>
+            <div><strong>Designer Contact:</strong> <span id="designer-contact-disp">+63 917 000 0000</span></div>
         </div>
     </header>
 
@@ -474,7 +472,7 @@
                     <input type="text" id="clientName" value="Juan Dela Cruz" placeholder="Juan Dela Cruz" onfocus="this.select()">
                 </div>
                 <div class="form-group">
-                    <label>Contact Number *</label>
+                    <label>Client Contact Number *</label>
                     <input type="text" id="contactNum" value="09171234567" placeholder="09171234567" onfocus="this.select()">
                 </div>
             </div>
@@ -559,7 +557,7 @@
                 </div>
             </div>
 
-            <div class="form-section-title">Signatures</div>
+            <div class="form-section-title">Signatures & Lead Contact</div>
             <div class="form-group">
                 <label>Contractor Name *</label>
                 <input type="text" id="contractor" value="Solar Power Solutions Philippines" placeholder="Solar Power Solutions Philippines" onfocus="this.select()">
@@ -568,10 +566,13 @@
                 <label>Prepared By *</label>
                 <input type="text" id="prepBy" value="Romil Daño" placeholder="Romil Daño" onfocus="this.select()">
             </div>
+            <div class="form-group">
+                <label>Romil Daño Contact Number *</label>
+                <input type="text" id="designerContact" value="+63 917 000 0000" placeholder="+63 917 000 0000" onfocus="this.select()">
+            </div>
 
             <button class="btn-success" onclick="generateDesign()">⚡ GENERATE DESIGN</button>
             
-            <!-- ERROR NOTIFICATION BOX -->
             <div id="error-box" class="error-message-box"></div>
         </div>
 
@@ -622,6 +623,7 @@
                     <table>
                         <tbody>
                             <tr><td><strong>Client / Customer Details</strong></td><td id="out-client-info">--</td></tr>
+                            <tr><td><strong>Lead Designer Contact</strong></td><td id="out-designer-contact">--</td></tr>
                             <tr><td><strong>Daily Consumption Target</strong></td><td id="out-daily-load">-- kWh/day</td></tr>
                             <tr><td><strong>Calculated Array Output</strong></td><td id="out-kwp">-- kWp</td></tr>
                             <tr><td><strong>Recommended Inverter Rating</strong></td><td id="out-inv">-- kW</td></tr>
@@ -668,7 +670,6 @@
             <!-- TAB 2: BATTERY -->
             <div id="tab-battery" class="tab-content card">
                 
-                <!-- BATTERY RULES DISPLAY CARD -->
                 <div class="battery-rules-card" id="bat-rules-card" style="display:none;">
                     <h3 id="rule-header-text">BATTERY RULES - AUTO SHUTOFF ENABLED @ 20%</h3>
                     <ul>
@@ -701,7 +702,6 @@
                 <h3 style="font-size: 1rem; margin-top:0;">04. Single Line Diagram (SLD)</h3>
                 <div style="width:100%; overflow-x:auto;">
                     <svg id="sld-svg" viewBox="0 0 560 340">
-                        <!-- Dynamic Vector Output -->
                     </svg>
                 </div>
             </div>
@@ -722,7 +722,7 @@
             <div id="tab-contract" class="tab-content card">
                 <h3 style="font-size: 1rem; margin-top:0;">SOLAR PV INSTALLATION CONTRACT</h3>
                 <p style="font-size: 0.85rem;">This agreement is made by and between <strong><span class="out-client"></span></strong> ("Client") and <strong><span class="out-contractor"></span></strong> ("Contractor").</p>
-                <p style="font-size: 0.85rem;"><strong>Owner & Lead Designer:</strong> Romil Daño</p>
+                <p style="font-size: 0.85rem;"><strong>Owner & Lead Designer:</strong> Romil Daño | <strong>Contact:</strong> <span class="out-designer-phone"></span></p>
                 <h4 style="font-size: 0.9rem; margin-bottom: 4px;">Article I: Scope of Work</h4>
                 <p style="font-size: 0.82rem; margin-top: 0;">Design, supply, installation, testing, and commissioning of a <span id="out-contract-kwp">--</span> kWp <span id="out-contract-scale">--</span> Solar PV System.</p>
                 <h4 style="font-size: 0.9rem; margin-bottom: 4px;">Article II: Contract Price</h4>
@@ -730,7 +730,7 @@
                 
                 <div class="signature-grid">
                     <div><div class="sig-line">Client / Rep Signature</div></div>
-                    <div><div class="sig-line">Romil Daño<br>Lead Designer</div></div>
+                    <div><div class="sig-line">Romil Daño<br>Lead Designer<br><span class="out-designer-phone"></span></div></div>
                     <div><div class="sig-line">Witness Signature</div></div>
                 </div>
             </div>
@@ -778,7 +778,9 @@
             return "❌ Maglagay ng valid na Monthly Consumption (kWh).";
         }
 
-        // Validate mandatory Scale-specific fields
+        const designerContact = document.getElementById('designerContact').value.trim();
+        if (!designerContact) return "❌ Paki-lagay ang Contact Number ni Romil Daño.";
+
         if (scale === 'Residential') {
             const clientName = document.getElementById('clientName').value.trim();
             const contactNum = document.getElementById('contactNum').value.trim();
@@ -819,7 +821,6 @@
         const printBtn = document.getElementById('print-btn');
         const banner = document.getElementById('print-guide-banner');
 
-        // PRE-VALIDATION CHECK
         const validationError = validateScaleAndInputs(scale, monthlyKwh);
 
         if (validationError !== "") {
@@ -846,6 +847,7 @@
 
     function calculate() {
         const contractor = document.getElementById('contractor').value || 'N/A';
+        const designerPhone = document.getElementById('designerContact').value || 'N/A';
         const scale = document.getElementById('scale').value;
         const type = document.getElementById('sysType').value;
         const monthlyKwh = parseFloat(document.getElementById('monthlyKwh').value) || 0;
@@ -941,6 +943,10 @@
             document.getElementById('bat-rules-card').style.display = 'none';
             document.getElementById('bat-warn').style.display = 'none';
         }
+
+        document.getElementById('designer-contact-disp').innerText = designerPhone;
+        document.getElementById('out-designer-contact').innerText = designerPhone;
+        document.querySelectorAll('.out-designer-phone').forEach(el => el.innerText = designerPhone);
 
         document.getElementById('dash-kwp').innerText = actualKwp.toFixed(2) + " kWp";
         document.getElementById('dash-panels').innerText = panelCount;
@@ -1039,7 +1045,7 @@
     }
 
     function saveToStorage() {
-        const inputs = ['clientName', 'contactNum', 'companyName', 'companyTin', 'companyRep', 'location', 'scale', 'sysType', 'monthlyKwh', 'panelWp', 'psh', 'dcLen', 'acLen', 'batLen', 'batChem', 'batHours', 'contractor', 'prepBy'];
+        const inputs = ['clientName', 'contactNum', 'companyName', 'companyTin', 'companyRep', 'location', 'scale', 'sysType', 'monthlyKwh', 'panelWp', 'psh', 'dcLen', 'acLen', 'batLen', 'batChem', 'batHours', 'contractor', 'prepBy', 'designerContact'];
         const data = {};
         inputs.forEach(id => {
             const el = document.getElementById(id);
