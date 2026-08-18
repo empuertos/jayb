@@ -3,540 +3,502 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JayB Worship | Singing for God's Glory</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <title>Solar PV Design Tool | © Romil Daño 2026</title>
     <style>
         :root {
-            --primary-bg: #1A1A2E; /* Dark Blue/Purple */
-            --secondary-bg: #202036; /* Slightly lighter dark blue */
-            --text-light: #E0E0E0;
-            --text-dark: #FFFFFF;
-            --accent-color: #87CEEB; /* Sky Blue */
-            --accent-hover: #ADD8E6; /* Lighter Sky Blue */
-            --border-color: rgba(255, 255, 255, 0.1);
-            --schedule-bg: rgba(135, 206, 235, 0.1); /* Light blue tint for schedule */
-            
-            /* Official Social Media Brand Colors */
-            --youtube-red: #FF0000;
-            --facebook-blue: #1877F2;
-            --instagram-gradient: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
-            --tiktok-gradient: linear-gradient(45deg, #00F2EA, #FF0050);
-            --spotify-green: #1DB954;
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --bg-light: #f8fafc;
+            --card-light: #ffffff;
+            --text-light: #0f172a;
+            --border-light: #e2e8f0;
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+            --text-dark: #f8fafc;
+            --border-dark: #334155;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --success: #10b981;
         }
 
         body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--primary-bg);
+            padding: 0;
+            background-color: var(--bg-light);
             color: var(--text-light);
-            line-height: 1.6;
-            scroll-behavior: smooth;
+            transition: background-color 0.3s, color 0.3s;
+            user-select: none;
+        }
+
+        body.dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
 
         header {
-            background: linear-gradient(135deg, var(--primary-bg), var(--secondary-bg));
-            text-align: center;
-            padding: 60px 20px;
-            position: relative;
-            overflow: hidden; /* For any background effects */
-        }
-
-        .profile-img {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid var(--accent-color);
-            box-shadow: 0 0 15px rgba(135, 206, 235, 0.5); /* Glowing effect */
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 3.5em;
-            color: var(--text-dark);
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        h2 {
-            font-size: 1.8em;
-            color: var(--accent-color);
-            font-weight: 600;
-            margin-top: 0;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
-
-        section {
-            padding: 60px 20px;
-            margin-bottom: 30px;
-            background-color: var(--secondary-bg);
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        section h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5em;
-            color: var(--accent-color);
-            text-align: center;
-            margin-bottom: 40px;
-            position: relative;
-        }
-
-        section h3::after {
-            content: '';
-            width: 60px;
-            height: 3px;
-            background-color: var(--accent-color);
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: -15px;
-            border-radius: 2px;
-        }
-
-        #about p {
-            text-align: center;
-            font-size: 1.1em;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        #tiktok-schedule {
-            text-align: center;
-        }
-
-        .schedule-card {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 30px;
-            background-color: var(--schedule-bg);
-            border: 1px solid var(--accent-color);
-            border-radius: 15px;
-            box-shadow: 0 0 15px rgba(135, 206, 235, 0.2);
-        }
-
-        .schedule-card h4 {
-            font-size: 1.5em;
-            color: var(--accent-color);
-            margin-top: 0;
-        }
-
-        .schedule-time {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin: 15px 0;
-        }
-
-        .schedule-note {
-            font-style: italic;
-            color: var(--text-light);
-        }
-
-        .tiktok-link-btn {
-            display: inline-block;
-            margin-top: 25px;
-            padding: 12px 25px;
-            background: var(--tiktok-gradient);
-            color: var(--text-dark);
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: 700;
-            transition: transform 0.2s ease, box-shadow 0.3s ease;
-        }
-
-        .tiktok-link-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 0, 80, 0.3);
-        }
-
-        #music .video-wrapper {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-            overflow: hidden;
-            max-width: 100%;
-            background: #000;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-
-        #music .video-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-
-        #support {
-            text-align: center;
-        }
-
-        .qr-container {
-            display: inline-block;
-            padding: 20px;
-            background-color: var(--text-dark);
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(135, 206, 235, 0.3);
-            margin-bottom: 30px;
-        }
-
-        .qr-code {
-            width: 250px;
-            height: 250px;
-            border-radius: 10px;
-            object-fit: cover;
-        }
-
-        .payment-note {
-            max-width: 700px;
-            margin: 0 auto 20px auto;
-            font-size: 1.1em;
-        }
-
-        .payment-methods {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-
-        .payment-methods span {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1.1em;
-            color: var(--accent-color);
-        }
-
-        #contact form {
-            max-width: 600px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        #contact input,
-        #contact textarea {
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            background-color: var(--primary-bg);
-            color: var(--text-light);
-            font-size: 1em;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
-            transition: border-color 0.3s ease;
-        }
-
-        #contact input:focus,
-        #contact textarea:focus {
-            border-color: var(--accent-color);
-            outline: none;
-            box-shadow: 0 0 5px var(--accent-color);
-        }
-
-        #contact button {
-            padding: 15px 25px;
-            background-color: var(--accent-color);
-            color: var(--primary-bg);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: 700;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        #contact button:hover {
-            background-color: var(--accent-hover);
-            transform: translateY(-2px);
-        }
-
-        .social-links {
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        /* Custom Social Media Icon Styles - Matching Official App Logos */
-        .social-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 80px;
-            height: 80px;
-            margin: 0 15px;
-            border-radius: 50%;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
             color: white;
-            font-size: 2.5em;
-            text-decoration: none;
-            transition: transform 0.2s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
-        /* YouTube Icon */
-        .social-icon.youtube {
-            background-color: var(--youtube-red);
-        }
-        .social-icon.youtube:hover {
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-            transform: scale(1.1);
+        .header-title h1 { margin: 0 0 6px 0; font-size: 1.8rem; }
+        .header-title p { margin: 0; font-size: 0.9rem; opacity: 0.9; }
+
+        .header-meta {
+            text-align: right;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 16px;
+            border-radius: 8px;
+            backdrop-filter: blur(4px);
         }
 
-        /* Facebook Icon */
-        .social-icon.facebook {
-            background-color: var(--facebook-blue);
-        }
-        .social-icon.facebook:hover {
-            box-shadow: 0 0 20px rgba(24, 119, 242, 0.5);
-            transform: scale(1.1);
+        .top-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            justify-content: flex-end;
         }
 
-        /* Instagram Icon */
-        .social-icon.instagram {
-            background: var(--instagram-gradient);
-        }
-        .social-icon.instagram::before {
-            content: '';
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            right: 5px;
-            bottom: 5px;
-            border: 2px solid white;
-            border-radius: 50%;
-            z-index: 1;
-        }
-        .social-icon.instagram i {
-            position: relative;
-            z-index: 2;
-        }
-        .social-icon.instagram:hover {
-            box-shadow: 0 0 20px rgba(163, 51, 200, 0.5);
-            transform: scale(1.1);
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
         }
 
-        /* TikTok Icon */
-        .social-icon.tiktok {
-            background: var(--tiktok-gradient);
-        }
-        .social-icon.tiktok:hover {
-            box-shadow: 0 0 20px rgba(0, 242, 234, 0.5);
-            transform: scale(1.1);
+        button:hover { background-color: var(--primary-dark); transform: translateY(-1px); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #dc2626; }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
         }
 
-        /* Spotify Icon */
-        .social-icon.spotify {
-            background-color: var(--spotify-green);
+        @media (max-width: 1024px) {
+            .layout-grid { grid-template-columns: 1fr; }
         }
-        .social-icon.spotify:hover {
-            box-shadow: 0 0 20px rgba(29, 185, 84, 0.5);
-            transform: scale(1.1);
+
+        .card {
+            background: var(--card-light);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark-mode .card {
+            background: var(--card-dark);
+            border-color: var(--border-dark);
+        }
+
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-light);
+            box-sizing: border-box;
+            background-color: transparent;
+            color: inherit;
+        }
+
+        body.dark-mode .form-group input, 
+        body.dark-mode .form-group select {
+            border-color: var(--border-dark);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .dash-card {
+            background: rgba(2, 132, 199, 0.05);
+            border-left: 4px solid var(--primary);
+            padding: 14px;
+            border-radius: 6px;
+        }
+
+        .dash-card .val { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
+        .dash-card .lbl { font-size: 0.75rem; opacity: 0.8; text-transform: uppercase; }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid var(--border-light);
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            color: inherit;
+            border: none;
+            padding: 10px 16px;
+            border-bottom: 3px solid transparent;
+            border-radius: 0;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            border: 1px solid var(--border-light);
+            text-align: left;
+        }
+
+        body.dark-mode th, body.dark-mode td {
+            border-color: var(--border-dark);
+        }
+
+        th { background-color: rgba(0, 0, 0, 0.03); }
+        body.dark-mode th { background-color: rgba(255, 255, 255, 0.03); }
+
+        .warning-box {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+        }
+
+        .signature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .sig-line {
+            border-top: 1px solid currentColor;
+            margin-top: 50px;
+            padding-top: 6px;
+            font-size: 0.85rem;
         }
 
         footer {
             text-align: center;
-            padding: 40px 20px;
-            background-color: var(--primary-bg);
-            color: var(--text-light);
-            font-size: 0.9em;
-            border-top: 1px solid var(--border-color);
+            padding: 20px;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-light);
         }
 
-        /* --- Responsive Styles --- */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5em;
-            }
-            h2 {
-                font-size: 1.5em;
-            }
-            section {
-                padding: 40px 15px;
-            }
-            section h3 {
-                font-size: 2em;
-            }
-            .profile-img {
-                width: 150px;
-                height: 150px;
-            }
-            .qr-code {
-                width: 200px;
-                height: 200px;
-            }
-            .schedule-card {
-                padding: 20px;
-            }
-            .schedule-time {
-                font-size: 1.2em;
-            }
-            .social-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 2em;
-                margin: 0 10px;
-            }
+        /* Print Settings */
+        @media print {
+            body { background: white !important; color: black !important; user-select: auto; }
+            .top-controls, .input-sidebar, .nav-tabs, footer { display: none !important; }
+            .layout-grid { display: block; }
+            .tab-content { display: block !important; page-break-after: always; }
+            .card { border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 30px !important; }
+            .print-only-footer { display: block !important; position: fixed; bottom: 0; font-size: 10px; }
         }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 2em;
-            }
-            h2 {
-                font-size: 1.2em;
-            }
-            section h3 {
-                font-size: 1.8em;
-            }
-            .profile-img {
-                width: 120px;
-                height: 120px;
-            }
-            .qr-code {
-                width: 180px;
-                height: 180px;
-            }
-            .social-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 1.5em;
-                margin: 0 8px;
-            }
-        }
+        .print-only-footer { display: none; }
     </style>
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
+<div class="container">
+    <div class="top-controls">
+        <button onclick="toggleTheme()">☀️/🌙 Theme</button>
+        <button class="btn-danger" onclick="clearData()">Clear Data</button>
+        <button onclick="window.print()">🖨️ Print / PDF</button>
+    </div>
+
     <header>
-        <img src="https://via.placeholder.com/180/87CEEB/FFFFFF?text=JayB" alt="JayB Profile" class="profile-img">
-        <h1>JayB</h1>
-        <h2>Singer & Worship Leader</h2>
-        <p>Singing for God’s glory & sharing hope through music</p>
+        <div class="header-title">
+            <h1>SOLAR PV DESIGN ENGINE</h1>
+            <p>Philippine Electrical Code (PNEC 2017) Compliant Design Platform</p>
+        </div>
+        <div class="header-meta">
+            <div><strong>Project ID:</strong> <span id="proj-id-disp">SPV-2608-0001</span></div>
+            <div><strong>Date:</strong> <span id="current-date">--</span></div>
+            <div><strong>Owner:</strong> Romil Daño</div>
+        </div>
     </header>
 
-    <main class="container">
+    <div class="layout-grid">
+        <!-- FORM SIDEBAR -->
+        <div class="input-sidebar card">
+            <div class="form-section-title">Client & Project Info</div>
+            <div class="form-group">
+                <label>Project Name / Client *</label>
+                <input type="text" id="clientName" value="Juan Dela Cruz" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label>Location *</label>
+                <input type="text" id="location" value="Cebu City, Philippines" oninput="calculate()">
+            </div>
 
-        <section id="about">
-            <h3>About JayB</h3>
-            <p>
-                Hi! I am JayB. My passion is to lead hearts in worship and share the timeless message of hope through the power of music. As a dedicated singer and worship leader, I believe in creating an atmosphere where faith can flourish, and spirits can be uplifted. Join me on this journey of devotion and melody, as we sing for God's glory together.
-            </p>
-        </section>
+            <div class="form-section-title">System Specs</div>
+            <div class="form-group">
+                <label>System Scale *</label>
+                <select id="scale" onchange="calculate()">
+                    <option value="Residential">Residential (230V 1-Phase)</option>
+                    <option value="Commercial">Commercial (400V 3-Phase)</option>
+                    <option value="Mall">Mall (≥100kW, 400V 3-Phase)</option>
+                    <option value="Industrial">Industrial (≥250kW, 400V 3-Phase)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>System Type *</label>
+                <select id="sysType" onchange="calculate()">
+                    <option value="Grid-tie">Grid-tie</option>
+                    <option value="Hybrid">Hybrid</option>
+                    <option value="Off-grid">Off-grid</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Monthly kWh Consumption *</label>
+                <input type="number" id="monthlyKwh" value="1200" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label>Panel Power (Wp) *</label>
+                <select id="panelWp" onchange="calculate()">
+                    <option value="400">400 Wp</option>
+                    <option value="450">450 Wp</option>
+                    <option value="500">500 Wp</option>
+                    <option value="550" selected>550 Wp</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Peak Sun Hours (Region) *</label>
+                <select id="psh" onchange="calculate()">
+                    <option value="5.0">Luzon / Manila (5.0 hrs)</option>
+                    <option value="4.5" selected>Central Visayas / Cebu (4.5 hrs)</option>
+                    <option value="4.0">Mindanao (4.0 hrs)</option>
+                </select>
+            </div>
 
-        <section id="tiktok-schedule">
-            <h3>TikTok Live Schedule</h3>
-            <div class="schedule-card">
-                <h4><i class="fab fa-tiktok"></i> Join My Morning Worship Live!</h4>
-                <p>Hi! Please join my regular live sessions to start your day with praise and worship.</p>
-                <div class="schedule-time">
-                    <i class="fas fa-clock"></i> Every Morning • 4:00 AM or 5:00 AM (Philippine Time)
+            <div class="form-section-title">Wiring Distances</div>
+            <div class="form-group">
+                <label>DC Wire Length (meters) *</label>
+                <input type="number" id="dcLen" value="25" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label>AC Wire Length (meters) *</label>
+                <input type="number" id="acLen" value="15" oninput="calculate()">
+            </div>
+            <div class="form-group" id="batLenGroup">
+                <label>Battery Cable Length (meters)</label>
+                <input type="number" id="batLen" value="3" oninput="calculate()">
+            </div>
+
+            <div class="form-section-title" id="batTitle">Battery Configuration</div>
+            <div id="batFields">
+                <div class="form-group">
+                    <label>Battery Chemistry *</label>
+                    <select id="batChem" onchange="calculate()">
+                        <option value="LiFePO4">LiFePO4 (80% DoD)</option>
+                        <option value="Lead-Acid">Lead-Acid (50% DoD)</option>
+                    </select>
                 </div>
-                <p class="schedule-note">
-                    *Schedule may vary slightly depending on special occasions or events. Follow my TikTok account for real-time updates!
-                </p>
-                <a href="https://www.tiktok.com/@jaybworship?_r=1&_t=ZS-95C11i5f8ND" target="_blank" class="tiktok-link-btn">
-                    <i class="fab fa-tiktok"></i> Visit My TikTok Page
-                </a>
-            </div>
-        </section>
-
-        <section id="music">
-            <h3>Featured Music</h3>
-            <div class="video-wrapper">
-                <iframe 
-                    src="https://www.youtube.com/embed/g-x4b785lA0" 
-                    title="Featured Worship Video" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                    allowfullscreen>
-                </iframe>
-            </div>
-            <p style="text-align: center; margin-top: 30px;">
-                <a href="https://www.youtube.com/@JayBWorship" target="_blank" style="color: var(--youtube-red); text-decoration: none; font-weight: 600;">Explore More Music on YouTube &rarr;</a>
-            </p>
-        </section>
-
-        <section id="support">
-            <h3>Support the Ministry</h3>
-            <p class="payment-note">
-                Your support helps us continue creating worship music and sharing God's love with more people. Scan the QR code below to give any amount – it works with GCash, Maya, and other digital payment apps!
-            </p>
-            
-            <div class="qr-container">
-                <!-- Replace with your actual unified QR code image link -->
-                <img src="https://via.placeholder.com/250/FFFFFF/1A1A2E?text=QR+CODE" alt="Unified Payment QR Code" class="qr-code">
+                <div class="form-group">
+                    <label>Autonomy Hours *</label>
+                    <input type="number" id="batHours" value="12" oninput="calculate()">
+                </div>
             </div>
 
-            <div class="payment-methods">
-                <span><i class="fab fa-credit-card"></i> GCash</span>
-                <span><i class="fab fa-credit-card"></i> Maya</span>
-                <span><i class="fas fa-money-bill-wave"></i> Bank Transfers</span>
-                <span><i class="fab fa-paypal"></i> PayPal</span>
+            <div class="form-section-title">Signatures & Contractor</div>
+            <div class="form-group">
+                <label>Contractor Name *</label>
+                <input type="text" id="contractor" value="Solar Power Solutions Philippines" oninput="calculate()">
+            </div>
+            <div class="form-group">
+                <label>Prepared By *</label>
+                <input type="text" id="prepBy" value="Romil Daño" oninput="calculate()">
+            </div>
+        </div>
+
+        <!-- MAIN OUTPUT DISPLAY -->
+        <div>
+            <!-- DASHBOARD HIGHLIGHTS -->
+            <div class="dashboard-grid">
+                <div class="dash-card">
+                    <div class="lbl">System Capacity</div>
+                    <div class="val" id="dash-kwp">-- kWp</div>
+                </div>
+                <div class="dash-card">
+                    <div class="lbl">PV Modules</div>
+                    <div class="val" id="dash-panels">-- Panels</div>
+                </div>
+                <div class="dash-card">
+                    <div class="lbl">Array Config</div>
+                    <div class="val" id="dash-array">--</div>
+                </div>
+                <div class="dash-card">
+                    <div class="lbl">Est. Monthly Gen</div>
+                    <div class="val" id="dash-gen">-- kWh</div>
+                </div>
+                <div class="dash-card">
+                    <div class="lbl">Estimated Price</div>
+                    <div class="val" id="dash-price">₱--</div>
+                </div>
             </div>
 
-            <p style="margin-top: 20px; font-style: italic;">
-                For bank transfers or other payment options, please send us a message via the contact form below.
-            </p>
-        </section>
-
-        <section id="contact">
-            <h3>Get In Touch</h3>
-            <form action="https://formsubmit.co/Jaybb3232@gmail.com" method="POST">
-                <input type="text" name="name" placeholder="Your Name" required>
-                <input type="email" name="email" placeholder="Your Email" required>
-                <input type="text" name="subject" placeholder="Subject">
-                <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
-                <button type="submit">Send Message</button>
-            </form>
-            <p style="text-align: center; margin-top: 20px;">
-                You can also email me directly at: <a href="mailto:Jaybb3232@gmail.com" style="color: var(--accent-color); text-decoration: none;">Jaybb3232@gmail.com</a>
-            </p>
-        </section>
-
-        <section id="social">
-            <h3>Connect With JayB</h3>
-            <div class="social-links">
-                <!-- Custom Styled Social Icons Matching Official App Logos -->
-                <a href="https://www.youtube.com/@JayBWorship" target="_blank" aria-label="YouTube" class="social-icon youtube">
-                    <i class="fab fa-youtube"></i>
-                </a>
-                <a href="https://www.facebook.com/JayBWorshipOfficial" target="_blank" aria-label="Facebook" class="social-icon facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="https://www.instagram.com/jayb_worship" target="_blank" aria-label="Instagram" class="social-icon instagram">
-                    <i class="fab fa-instagram"></i>
-                </a>
-                <a href="https://www.tiktok.com/@jaybworship?_r=1&_t=ZS-95C11i5f8ND" target="_blank" aria-label="TikTok" class="social-icon tiktok">
-                    <i class="fab fa-tiktok"></i>
-                </a>
-                <a href="https://open.spotify.com/artist/123456789" target="_blank" aria-label="Spotify" class="social-icon spotify">
-                    <i class="fab fa-spotify"></i>
-                </a>
+            <!-- TABS -->
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab('tab-specs')">System Specs & Sizing</button>
+                <button class="tab-btn" onclick="switchTab('tab-battery')">Battery System</button>
+                <button class="tab-btn" onclick="switchTab('tab-sld')">SLD Diagram</button>
+                <button class="tab-btn" onclick="switchTab('tab-electrical')">Electrical Plan</button>
+                <button class="tab-btn" onclick="switchTab('tab-contract')">Contract Agreement</button>
             </div>
-        </section>
 
-    </main>
+            <!-- TAB 1: SPECS -->
+            <div id="tab-specs" class="tab-content active card">
+                <h3>01. System Calculation Summary</h3>
+                <table>
+                    <tr><td>Daily Consumption Target</td><td id="out-daily-load">-- kWh/day</td></tr>
+                    <tr><td>Calculated Array Output</td><td id="out-kwp">-- kWp</td></tr>
+                    <tr><td>Recommended Inverter Rating</td><td id="out-inv">-- kW</td></tr>
+                    <tr><td>System Phase Output</td><td id="out-phase">--</td></tr>
+                </table>
+
+                <h3>02. Wiring & Circuit Protection</h3>
+                <table>
+                    <thead>
+                        <tr><th>Segment</th><th>Recommended Size</th><th>Specs / Rating</th><th>Max VD %</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>DC Side (PV to Inverter)</td><td id="out-dc-wire">--</td><td>PV1-F 1000V DC</td><td id="out-dc-vd">--%</td></tr>
+                        <tr><td>AC Side (Inverter to Main)</td><td id="out-ac-wire">--</td><td id="out-ac-type">THHN/THWN-2</td><td id="out-ac-vd">--%</td></tr>
+                        <tr><td>AC Main Circuit Breaker</td><td id="out-cb">--</td><td id="out-cb-poles">-- Pole</td><td>PNEC Compliant</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TAB 2: BATTERY -->
+            <div id="tab-battery" class="tab-content card">
+                <h3>03. Battery Storage System Specifications</h3>
+                <div id="bat-warn" class="warning-box" style="display:none;">
+                    ⚠️ Reserve percentage threshold alert! BMS auto-shutoff recommended to protect battery life.
+                </div>
+                <table>
+                    <tr><td>Calculated Battery Storage</td><td id="out-bat-kwh">-- kWh</td></tr>
+                    <tr><td>Usable Energy Capacity</td><td id="out-bat-usable">-- kWh</td></tr>
+                    <tr><td>System DC Voltage System</td><td id="out-bat-volts">48V DC</td></tr>
+                    <tr><td>Amp-Hour Rating Requirement</td><td id="out-bat-ah">-- Ah</td></tr>
+                    <tr><td>Min Cable Wire Cross-Section</td><td id="out-bat-wire">-- mm²</td></tr>
+                </table>
+            </div>
+
+            <!-- TAB 3: SLD -->
+            <div id="tab-sld" class="tab-content card">
+                <h3>04. Single Line Diagram (SLD)</h3>
+                <svg id="sld-svg" width="100%" height="320" style="background: rgba(0,0,0,0.02); border-radius:8px;">
+                    <!-- Dynamically Rendered SVG -->
+                </svg>
+            </div>
+
+            <!-- TAB 4: ELECTRICAL PLAN -->
+            <div id="tab-electrical" class="tab-content card">
+                <h3>05. Electrical Compliance & Installation Specifications</h3>
+                <p><strong>Standards Baseline:</strong> Philippine Electrical Code (PNEC 2017 Part 1 & 2)</p>
+                <ul>
+                    <li>All DC cabling must use PV1-F double-insulated UV-resistant solar cables.</li>
+                    <li>Inverter and array frames must be solidly grounded back to the main ground electrode.</li>
+                    <li>System includes AC/DC Surge Protective Devices (SPD) and direct DC Disconnect Isolators.</li>
+                    <li id="out-combiner-note">DC Combiner box requirement: Standard string connection.</li>
+                </ul>
+            </div>
+
+            <!-- TAB 5: CONTRACT -->
+            <div id="tab-contract" class="tab-content card">
+                <h3>SOLAR PV INSTALLATION CONTRACT</h3>
+                <p>This agreement is made and entered into by and between <strong><span class="out-client"></span></strong> ("Client") and <strong><span class="out-contractor"></span></strong> ("Contractor").</p>
+                <p><strong>Owner & Engineering Lead:</strong> Romil Daño</p>
+                <h4>Article I: Scope of Work</h4>
+                <p>Design, supply, installation, testing, and commissioning of <span id="out-contract-kwp">--</span> kWp <span id="out-contract-scale">--</span> Solar PV System.</p>
+                <h4>Article II: Contract Price</h4>
+                <p>Total Agreed Cost: <strong><span id="out-contract-price">₱0.00</span> PHP</strong></p>
+                
+                <div class="signature-grid">
+                    <div><div class="sig-line">Client Signature</div></div>
+                    <div><div class="sig-line">Romil Daño<br>System Owner / Lead</div></div>
+                    <div><div class="sig-line">Witness Signature</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer>
-        <p>&copy; 2026 JayB Worship. All rights reserved.</p>
+        Solar PV Design Engine | Owned by Romil Daño © 2026. All Rights Reserved. (PNEC 2017 Compliant)
     </footer>
+    <div class="print-only-footer">© 2026 Romil Daño - Philippine Solar Engineering System</div>
+</div>
 
-</body>
-</html>
+<script>
+    // System Pricing Rules per kWp
+    const PRICING = {
+        'Residential': { 'Grid-tie': 50000, 'Hybrid': 70000, 'Off-grid': 100000, eff: 0.75 },
+        'Commercial':  { 'Grid-tie': 42000, 'Hybrid': 62000, 'Off-grid': 88000, eff: 0.77 },
+        'Mall':        { 'Grid-tie': 38000, 'Hybrid': 58000, 'Off-grid': 82000, eff: 0.78 },
+        'Industrial':  { 'Grid-tie': 35000, 'Hybrid': 55000, 'Off-grid': 78000, eff: 0.80 }
+    };
+
+    function calculate() {
+        const cl
