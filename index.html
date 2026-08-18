@@ -189,7 +189,7 @@
             min-height: 40px;
         }
 
-        /* NAKA-HIDE ITO SA SIMULA */
+        /* NAKA-HIDE ANG LAHAT NG OUTPUT AT TABS SA SIMULA */
         #output-section {
             display: none;
         }
@@ -360,7 +360,7 @@
     </header>
 
     <div class="layout-grid">
-        <!-- FORM SIDEBAR (LALABAS MUNA ITO) -->
+        <!-- FORM SIDEBAR (ITO LAMANG ANG NAKALITAW SA SIMULA) -->
         <div class="input-sidebar card">
             <div class="form-section-title">Client & Project Info</div>
             <div class="form-group">
@@ -454,7 +454,7 @@
             <button class="btn-success" onclick="generateDesign()">⚡ GENERATE DESIGN</button>
         </div>
 
-        <!-- MAIN OUTPUT DISPLAY (LALABAS LAMANG MATAPOS I-CLICK ANG BUTTON) -->
+        <!-- MAIN OUTPUT DISPLAY (LALABAS LANG KAPAG PININDOT ANG GENERATE DESIGN) -->
         <div id="output-section">
             <!-- DASHBOARD HIGHLIGHTS -->
             <div class="dashboard-grid">
@@ -480,7 +480,7 @@
                 </div>
             </div>
 
-            <!-- TABS -->
+            <!-- TABS NAVIGATION -->
             <div class="nav-tabs">
                 <button class="tab-btn active" onclick="switchTab('tab-specs', event)">System Specs</button>
                 <button class="tab-btn" onclick="switchTab('tab-battery', event)">Battery System</button>
@@ -538,7 +538,7 @@
                 <h3>04. Single Line Diagram (SLD)</h3>
                 <div style="width:100%; overflow-x:hidden;">
                     <svg id="sld-svg" viewBox="0 0 540 320">
-                        <!-- SVG -->
+                        <!-- SVG Output -->
                     </svg>
                 </div>
             </div>
@@ -597,14 +597,14 @@
     }
 
     function generateDesign() {
-        // Unhide Output Section
+        // Ipa-pakita ang buong Output Section kasama ang Tabs at Results
         const outSection = document.getElementById('output-section');
         outSection.style.display = 'block';
 
-        // Calculate System Specs
+        // Kwentahin ang mga ilalabas na datos
         calculate();
 
-        // Scroll to results on mobile view
+        // Kusa nitong i-scroll ang screen papunta sa results kapag naka-mobile phone
         if (window.innerWidth <= 1024) {
             outSection.scrollIntoView({ behavior: 'smooth' });
         }
@@ -785,8 +785,6 @@
                     el.value = data[id];
                 }
             });
-            // Show results directly if user has saved data
-            generateDesign();
         }
         
         const savedTheme = localStorage.getItem('solar_theme');
