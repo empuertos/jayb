@@ -46,7 +46,7 @@
             --sticky-bg: #0f172a;
         }
 
-        /* FIXED STICKY TOP CONTROLS BAR */
+        /* ALWAYS ON TOP STICKY CONTROLS */
         .top-controls {
             position: -webkit-sticky;
             position: sticky;
@@ -130,6 +130,35 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
+        }
+
+        /* BATTERY RULES CARD STYLE */
+        .battery-rules-card {
+            background-color: #1d4ed8;
+            color: #ffffff;
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 6px solid #60a5fa;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .battery-rules-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .battery-rules-card ul {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .battery-rules-card li {
+            margin-bottom: 4px;
         }
 
         header {
@@ -595,6 +624,18 @@
 
             <!-- TAB 2: BATTERY -->
             <div id="tab-battery" class="tab-content card">
+                
+                <!-- BATTERY RULES DISPLAY CARD -->
+                <div class="battery-rules-card" id="bat-rules-card" style="display:none;">
+                    <h3 id="rule-header-text">BATTERY RULES - AUTO SHUTOFF ENABLED @ 20%</h3>
+                    <ul>
+                        <li><strong>Total Capacity:</strong> 100% - Full charge</li>
+                        <li><strong>Usable Capacity:</strong> <span id="rule-dod-text">80%</span> - This is ALL you can safely use!</li>
+                        <li><strong><span id="rule-reserve-text">20%</span> RESERVE - AUTO SHUTOFF:</strong> When battery reaches <span id="rule-cutoff-text">20%</span> remaining - Inverter automatically turns OFF!</li>
+                        <li><strong>To use again:</strong> Must recharge above <span id="rule-recharge-text">20%</span> first!</li>
+                    </ul>
+                </div>
+
                 <h3 style="font-size: 1rem; margin-top:0;">03. Battery Storage System Specifications</h3>
                 <div id="bat-warn" class="warning-box" style="display:none;">
                     ⚠️ Low Depth of Discharge Warning: Lead-Acid batteries require 50% max DoD to extend operational life.
@@ -753,6 +794,8 @@
             const chem = document.getElementById('batChem').value;
             const hours = parseFloat(document.getElementById('batHours').value) || 12;
             const dod = chem === 'LiFePO4' ? 0.8 : 0.5;
+            const reservePercent = Math.round((1 - dod) * 100);
+            const usablePercent = Math.round(dod * 100);
             
             batKwh = ((dailyKwh * (hours / 24)) / dod) * 1.15 * 1.10;
             batUsable = batKwh * dod;
@@ -767,7 +810,19 @@
             document.getElementById('out-bat-usable').innerText = batUsable.toFixed(2) + " kWh";
             document.getElementById('out-bat-ah').innerText = Math.round(batAh) + " Ah";
             document.getElementById('out-bat-wire').innerText = batWire;
+            
+            // Dynamic Updates for Battery Rules Card
+            document.getElementById('rule-header-text').innerText = `BATTERY RULES - AUTO SHUTOFF ENABLED @ ${reservePercent}%`;
+            document.getElementById('rule-dod-text').innerText = usablePercent + "%";
+            document.getElementById('rule-reserve-text').innerText = reservePercent + "%";
+            document.getElementById('rule-cutoff-text').innerText = reservePercent + "%";
+            document.getElementById('rule-recharge-text').innerText = reservePercent + "%";
+
+            document.getElementById('bat-rules-card').style.display = 'block';
             document.getElementById('bat-warn').style.display = chem === 'Lead-Acid' ? 'block' : 'none';
+        } else {
+            document.getElementById('bat-rules-card').style.display = 'none';
+            document.getElementById('bat-warn').style.display = 'none';
         }
 
         document.getElementById('dash-kwp').innerText = actualKwp.toFixed(2) + " kWp";
