@@ -95,6 +95,11 @@
         .btn-success { background-color: var(--success); width: 100%; margin-top: 14px; font-size: 0.95rem; }
         .btn-success:hover { background-color: #059669; }
 
+        /* NAKATAGO ANG PRINT BUTTON SA SIMULA */
+        #print-btn {
+            display: none;
+        }
+
         /* Header Bar */
         header {
             background: linear-gradient(135deg, #0284c7, #0369a1);
@@ -366,7 +371,8 @@
     <div class="top-controls">
         <button id="theme-btn" onclick="toggleTheme()">☀️ Theme</button>
         <button class="btn-danger" onclick="clearData()">Clear Data</button>
-        <button onclick="window.print()">🖨️ Print / PDF</button>
+        <!-- NAKALAGAY ANG ID NA "print-btn" -->
+        <button id="print-btn" onclick="window.print()">🖨️ Print / PDF</button>
     </div>
 
     <header>
@@ -644,7 +650,13 @@
 
     function generateDesign() {
         const outSection = document.getElementById('output-section');
+        const printBtn = document.getElementById('print-btn');
+
+        // LALABAS ANG OUTPUT SECTION AT PRINT BUTTON
         outSection.style.display = 'block';
+        if (printBtn) {
+            printBtn.style.display = 'inline-flex';
+        }
 
         calculate();
 
