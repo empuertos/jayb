@@ -132,6 +132,20 @@
             gap: 6px;
         }
 
+        /* ERROR BANNER STYLE */
+        .error-message-box {
+            display: none;
+            background-color: rgba(239, 68, 68, 0.15);
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
         /* BATTERY RULES CARD STYLE */
         .battery-rules-card {
             background-color: #1d4ed8;
@@ -531,6 +545,9 @@
             </div>
 
             <button class="btn-success" onclick="generateDesign()">⚡ GENERATE DESIGN</button>
+            
+            <!-- ERROR NOTIFICATION BOX -->
+            <div id="error-box" class="error-message-box"></div>
         </div>
 
         <!-- MAIN OUTPUT DISPLAY -->
@@ -716,18 +733,65 @@
         document.getElementById('batLenGroup').style.display = isBat ? 'block' : 'none';
     }
 
+    function validateScaleAndConsumption(scale, monthlyKwh) {
+        let errorMsg = "";
+
+        if (isNaN(monthlyKwh) || monthlyKwh <= 0) {
+            return "❌ Maglagay ng valid na Monthly Consumption (kWh).";
+        }
+
+        switch (scale) {
+            case 'Residential':
+                if (monthlyKwh >= 3000) {
+                    errorMsg = "❌ ERROR: Ang Residential Scale ay para lamang sa ibaba ng 3,000 kWh/month. Paki-pili ang Commercial o Mall Scale.";
+                }
+                break;
+            case 'Commercial':
+                if (monthlyKwh < 3000 || monthlyKwh >= 15000) {
+                    errorMsg = "❌ ERROR: Ang Commercial Scale ay para lamang sa 3,000 kWh hanggang 14,999 kWh/month.";
+                }
+                break;
+            case 'Mall':
+                if (monthlyKwh < 15000 || monthlyKwh >= 40000) {
+                    errorMsg = "❌ ERROR: Ang Mall Scale (≥100kW) ay para lamang sa 15,000 kWh hanggang 39,999 kWh/month.";
+                }
+                break;
+            case 'Industrial':
+                if (monthlyKwh < 40000) {
+                    errorMsg = "❌ ERROR: Ang Industrial Scale (≥250kW) ay para lamang sa 40,000 kWh pataas bawat buwan.";
+                }
+                break;
+        }
+
+        return errorMsg;
+    }
+
     function generateDesign() {
+        const scale = document.getElementById('scale').value;
+        const monthlyKwh = parseFloat(document.getElementById('monthlyKwh').value);
+        const errorBox = document.getElementById('error-box');
         const outSection = document.getElementById('output-section');
         const printBtn = document.getElementById('print-btn');
         const banner = document.getElementById('print-guide-banner');
 
+        // PRE-VALIDATION CHECK
+        const validationError = validateScaleAndConsumption(scale, monthlyKwh);
+
+        if (validationError !== "") {
+            // SHOW ERROR AND BLOCK GENERATION
+            errorBox.innerText = validationError;
+            errorBox.style.display = 'block';
+            outSection.style.display = 'none';
+            if (printBtn) printBtn.style.display = 'none';
+            if (banner) banner.style.display = 'none';
+            return; // STOP EXECUTION
+        }
+
+        // CLEAR ERROR IF VALID
+        errorBox.style.display = 'none';
         outSection.style.display = 'block';
-        if (printBtn) {
-            printBtn.style.display = 'inline-flex';
-        }
-        if (banner) {
-            banner.style.display = 'flex';
-        }
+        if (printBtn) printBtn.style.display = 'inline-flex';
+        if (banner) banner.style.display = 'flex';
 
         calculate();
 
@@ -811,7 +875,6 @@
             document.getElementById('out-bat-ah').innerText = Math.round(batAh) + " Ah";
             document.getElementById('out-bat-wire').innerText = batWire;
             
-            // Dynamic Updates for Battery Rules Card
             document.getElementById('rule-header-text').innerText = `BATTERY RULES - AUTO SHUTOFF ENABLED @ ${reservePercent}%`;
             document.getElementById('rule-dod-text').innerText = usablePercent + "%";
             document.getElementById('rule-reserve-text').innerText = reservePercent + "%";
