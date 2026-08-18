@@ -27,7 +27,7 @@
             --text-main: #0f172a;
             --border-color: #e2e8f0;
             --input-bg: #ffffff;
-            --table-header: rgba(0, 0, 0, 0.03);
+            --table-header: rgba(0, 0, 0, 0.05);
             --accent: #f59e0b;
             --danger: #ef4444;
             --success: #10b981;
@@ -39,7 +39,7 @@
             --text-main: #f8fafc;
             --border-color: #334155;
             --input-bg: #0f172a;
-            --table-header: rgba(255, 255, 255, 0.05);
+            --table-header: rgba(255, 255, 255, 0.1);
         }
 
         body {
@@ -189,9 +189,10 @@
             min-height: 40px;
         }
 
-        /* NAKA-HIDE ANG LAHAT NG OUTPUT AT TABS SA SIMULA */
+        /* OUTPUT SECTION HIDDEN AT START */
         #output-section {
             display: none;
+            width: 100%;
         }
 
         .dashboard-grid {
@@ -235,11 +236,11 @@
             background: none;
             color: var(--text-main);
             border: none;
-            padding: 8px 10px;
+            padding: 8px 12px;
             border-bottom: 3px solid transparent;
             border-radius: 0;
             font-weight: 600;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             cursor: pointer;
             white-space: nowrap;
             flex-shrink: 0;
@@ -251,41 +252,53 @@
             color: var(--primary);
         }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        /* FIXED TAB DISPLAY CONTROLS */
+        .tab-content { 
+            display: none !important; 
+            width: 100%;
+        }
+        .tab-content.active { 
+            display: block !important; 
+        }
 
+        /* FIXED TABLE DISPLAY & SCROLLING */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.78rem;
+            font-size: 0.85rem;
             color: var(--text-main);
-            min-width: 100%;
+            min-width: 500px; /* Tinitiyak na hindi magko-collapse ang columns */
         }
 
         th, td {
-            padding: 6px 8px;
+            padding: 10px 12px;
             border: 1px solid var(--border-color);
             text-align: left;
-            word-break: break-word;
+            word-break: normal;
         }
 
-        th { background-color: var(--table-header); }
+        th { 
+            background-color: var(--table-header); 
+            font-weight: 700;
+        }
 
         .warning-box {
             background-color: rgba(239, 68, 68, 0.1);
             border: 1px solid var(--danger);
             color: var(--danger);
-            padding: 8px;
+            padding: 10px;
             border-radius: 6px;
             margin-bottom: 12px;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
         }
 
         .signature-grid {
@@ -333,7 +346,7 @@
             .tab-content { display: block !important; page-break-after: always; }
             .card { border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 20px !important; }
             .print-only-footer { display: block !important; position: fixed; bottom: 0; font-size: 10px; }
-            table { width: 100% !important; }
+            table { width: 100% !important; min-width: 0 !important; }
         }
         .print-only-footer { display: none; }
     </style>
@@ -360,7 +373,7 @@
     </header>
 
     <div class="layout-grid">
-        <!-- FORM SIDEBAR WITH AUTO-HIGHLIGHT / AUTO-SELECT -->
+        <!-- FORM SIDEBAR -->
         <div class="input-sidebar card">
             <div class="form-section-title">Client & Project Info</div>
             <div class="form-group">
@@ -494,10 +507,12 @@
                 <h3>01. System Calculation Summary</h3>
                 <div class="table-responsive">
                     <table>
-                        <tr><td>Daily Consumption Target</td><td id="out-daily-load">-- kWh/day</td></tr>
-                        <tr><td>Calculated Array Output</td><td id="out-kwp">-- kWp</td></tr>
-                        <tr><td>Recommended Inverter Rating</td><td id="out-inv">-- kW</td></tr>
-                        <tr><td>System Phase Output</td><td id="out-phase">--</td></tr>
+                        <tbody>
+                            <tr><td><strong>Daily Consumption Target</strong></td><td id="out-daily-load">-- kWh/day</td></tr>
+                            <tr><td><strong>Calculated Array Output</strong></td><td id="out-kwp">-- kWp</td></tr>
+                            <tr><td><strong>Recommended Inverter Rating</strong></td><td id="out-inv">-- kW</td></tr>
+                            <tr><td><strong>System Phase Output</strong></td><td id="out-phase">--</td></tr>
+                        </tbody>
                     </table>
                 </div>
 
@@ -505,12 +520,32 @@
                 <div class="table-responsive">
                     <table>
                         <thead>
-                            <tr><th>Segment</th><th>Recommended Size</th><th>Specs / Rating</th><th>Max VD %</th></tr>
+                            <tr>
+                                <th>Segment</th>
+                                <th>Recommended Size</th>
+                                <th>Specs / Rating</th>
+                                <th>Max VD %</th>
+                            </tr>
                         </thead>
                         <tbody>
-                            <tr><td>DC Side (PV to Inverter)</td><td id="out-dc-wire">--</td><td>PV1-F 1000V DC</td><td id="out-dc-vd">--%</td></tr>
-                            <tr><td>AC Side (Inverter to Main)</td><td id="out-ac-wire">--</td><td id="out-ac-type">THHN/THWN-2</td><td id="out-ac-vd">--%</td></tr>
-                            <tr><td>AC Main Circuit Breaker</td><td id="out-cb">--</td><td id="out-cb-poles">-- Pole</td><td>PNEC Compliant</td></tr>
+                            <tr>
+                                <td>DC Side (PV to Inverter)</td>
+                                <td id="out-dc-wire">--</td>
+                                <td>PV1-F 1000V DC</td>
+                                <td id="out-dc-vd">--%</td>
+                            </tr>
+                            <tr>
+                                <td>AC Side (Inverter to Main)</td>
+                                <td id="out-ac-wire">--</td>
+                                <td id="out-ac-type">THHN/THWN-2</td>
+                                <td id="out-ac-vd">--%</td>
+                            </tr>
+                            <tr>
+                                <td>AC Main Circuit Breaker</td>
+                                <td id="out-cb">--</td>
+                                <td id="out-cb-poles">-- Pole</td>
+                                <td>PNEC Compliant</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -524,11 +559,13 @@
                 </div>
                 <div class="table-responsive">
                     <table>
-                        <tr><td>Calculated Battery Storage</td><td id="out-bat-kwh">-- kWh</td></tr>
-                        <tr><td>Usable Energy Capacity</td><td id="out-bat-usable">-- kWh</td></tr>
-                        <tr><td>System DC Voltage System</td><td id="out-bat-volts">48V DC</td></tr>
-                        <tr><td>Amp-Hour Rating Requirement</td><td id="out-bat-ah">-- Ah</td></tr>
-                        <tr><td>Min Cable Wire Cross-Section</td><td id="out-bat-wire">-- mm²</td></tr>
+                        <tbody>
+                            <tr><td><strong>Calculated Battery Storage</strong></td><td id="out-bat-kwh">-- kWh</td></tr>
+                            <tr><td><strong>Usable Energy Capacity</strong></td><td id="out-bat-usable">-- kWh</td></tr>
+                            <tr><td><strong>System DC Voltage System</strong></td><td id="out-bat-volts">48V DC</td></tr>
+                            <tr><td><strong>Amp-Hour Rating Requirement</strong></td><td id="out-bat-ah">-- Ah</td></tr>
+                            <tr><td><strong>Min Cable Wire Cross-Section</strong></td><td id="out-bat-wire">-- mm²</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -547,7 +584,7 @@
             <div id="tab-electrical" class="tab-content card">
                 <h3>05. Electrical Compliance & Specifications</h3>
                 <p><strong>Standards Baseline:</strong> Philippine Electrical Code (PNEC 2017 Part 1 & 2)</p>
-                <ul style="padding-left: 18px; font-size: 0.85rem;">
+                <ul style="padding-left: 18px; font-size: 0.85rem; line-height: 1.6;">
                     <li>All DC cabling must use PV1-F double-insulated UV-resistant solar cables.</li>
                     <li>Inverter and array frames must be solidly grounded back to the main ground electrode.</li>
                     <li>System includes AC/DC Surge Protective Devices (SPD) and direct DC Disconnect Isolators.</li>
@@ -601,6 +638,12 @@
         outSection.style.display = 'block';
 
         calculate();
+
+        // Tinitiyak na naka-activate ang unang tab sa pag-generate
+        const firstTabBtn = document.querySelector('.tab-btn');
+        if (firstTabBtn) {
+            switchTab('tab-specs', { target: firstTabBtn });
+        }
 
         if (window.innerWidth <= 1024) {
             outSection.scrollIntoView({ behavior: 'smooth' });
@@ -745,9 +788,19 @@
     }
 
     function switchTab(tabId, evt) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
+        // Alisin ang active class sa lahat ng tabs at buttons
+        const contents = document.querySelectorAll('.tab-content');
+        const buttons = document.querySelectorAll('.tab-btn');
+        
+        contents.forEach(el => el.classList.remove('active'));
+        buttons.forEach(el => el.classList.remove('active'));
+
+        // Idagdag ang active class sa piniling tab at button
+        const targetTab = document.getElementById(tabId);
+        if (targetTab) {
+            targetTab.classList.add('active');
+        }
+
         if (evt && evt.target) {
             evt.target.classList.add('active');
         }
