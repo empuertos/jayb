@@ -35,6 +35,7 @@
             --accent: #f59e0b;
             --danger: #ef4444;
             --success: #10b981;
+            --sticky-bg: rgba(248, 250, 252, 0.95);
         }
 
         body.dark-mode {
@@ -44,6 +45,7 @@
             --border-color: #334155;
             --input-bg: #0f172a;
             --table-header: #334155;
+            --sticky-bg: rgba(15, 23, 42, 0.95);
         }
 
         .container {
@@ -57,13 +59,21 @@
             .container { padding: 20px; }
         }
 
-        /* Top Action Buttons */
+        /* ALWAYS ON TOP / STICKY CONTROLS BAR */
         .top-controls {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: var(--sticky-bg);
+            backdrop-filter: blur(8px);
             display: flex;
             gap: 8px;
+            padding: 10px 0;
             margin-bottom: 12px;
             justify-content: flex-end;
             flex-wrap: wrap;
+            border-bottom: 1px solid var(--border-color);
         }
 
         button {
@@ -97,6 +107,7 @@
         /* PRINT BUTTON AT ANIMATION */
         #print-btn {
             display: none;
+            background-color: var(--success);
         }
 
         .btn-pulse {
@@ -392,10 +403,11 @@
 <body>
 
 <div class="container">
+    <!-- STICKY TOP CONTROLS -->
     <div class="top-controls">
         <button id="theme-btn" onclick="toggleTheme()">☀️ Theme</button>
         <button class="btn-danger" onclick="clearData()">Clear Data</button>
-        <button id="print-btn" class="btn-success btn-pulse" onclick="window.print()">🖨️ Print / PDF</button>
+        <button id="print-btn" class="btn-pulse" onclick="window.print()">🖨️ Print / PDF</button>
     </div>
 
     <header>
@@ -507,9 +519,8 @@
         <!-- MAIN OUTPUT DISPLAY -->
         <div id="output-section">
             
-            <!-- INSTRUCTION BANNER NA NAGTOTORO SA TAAS -->
             <div id="print-guide-banner" class="print-guide-banner">
-                <span>⬆️ Design Generated! Click the <strong>🖨️ Print / PDF</strong> button at the top right to print or save.</span>
+                <span>⚡ Design Generated! Use the <strong>🖨️ Print / PDF</strong> button pinned at the top to save or print.</span>
             </div>
 
             <!-- DASHBOARD METRICS -->
@@ -681,7 +692,6 @@
         const printBtn = document.getElementById('print-btn');
         const banner = document.getElementById('print-guide-banner');
 
-        // LALABAS ANG OUTPUT SECTION, PRINT BUTTON AT BANNER
         outSection.style.display = 'block';
         if (printBtn) {
             printBtn.style.display = 'inline-flex';
@@ -696,9 +706,6 @@
         if (firstTabBtn) {
             switchTab('tab-specs', { target: firstTabBtn });
         }
-
-        // AUTOMATIC SCROLL SA TAAS PARA NAKATUITO ANG PRINT BUTTON
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function calculate() {
