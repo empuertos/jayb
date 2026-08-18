@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Solar PV Design Tool | © Romil Daño 2026</title>
     <style>
+        /* Global Reset for Perfect Mobile Fit */
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
         /* Base Light Theme Variables */
         :root {
             --primary: #0284c7;
@@ -32,8 +46,6 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            padding: 0;
             background-color: var(--bg-body);
             color: var(--text-main);
             transition: background-color 0.2s ease, color 0.2s ease;
@@ -42,9 +54,10 @@
         }
 
         .container {
+            width: 100%;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 12px;
+            padding: 8px;
         }
 
         @media (min-width: 768px) {
@@ -54,35 +67,34 @@
         header {
             background: linear-gradient(135deg, #0284c7, #0369a1);
             color: white;
-            padding: 16px;
+            padding: 12px;
             border-radius: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .header-title h1 { margin: 0 0 4px 0; font-size: 1.4rem; }
-        .header-title p { margin: 0; font-size: 0.8rem; opacity: 0.9; }
+        .header-title h1 { margin: 0 0 4px 0; font-size: 1.2rem; }
+        .header-title p { margin: 0; font-size: 0.75rem; opacity: 0.9; }
 
         @media (min-width: 768px) {
-            header { padding: 24px; }
+            header { padding: 24px; margin-bottom: 20px; }
             .header-title h1 { font-size: 1.8rem; }
             .header-title p { font-size: 0.9rem; }
         }
 
         .header-meta {
             text-align: left;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             background: rgba(255, 255, 255, 0.15);
-            padding: 8px 12px;
+            padding: 8px 10px;
             border-radius: 8px;
             backdrop-filter: blur(4px);
             width: 100%;
-            box-sizing: border-box;
         }
 
         @media (min-width: 640px) {
@@ -91,8 +103,8 @@
 
         .top-controls {
             display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
+            gap: 6px;
+            margin-bottom: 12px;
             justify-content: flex-end;
             flex-wrap: wrap;
         }
@@ -101,14 +113,19 @@
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 10px 14px;
+            padding: 8px 12px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             transition: all 0.2s;
             touch-action: manipulation;
-            min-height: 40px;
+            min-height: 38px;
+            flex: 1;
+        }
+
+        @media (min-width: 480px) {
+            button { flex: initial; padding: 10px 14px; font-size: 0.85rem; min-height: 40px; }
         }
 
         button:hover { background-color: var(--primary-dark); transform: translateY(-1px); }
@@ -118,21 +135,22 @@
         .layout-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 20px;
+            gap: 12px;
         }
 
         @media (min-width: 1025px) {
-            .layout-grid { grid-template-columns: 380px 1fr; gap: 24px; }
+            .layout-grid { grid-template-columns: 360px 1fr; gap: 20px; }
         }
 
         .card {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             transition: background-color 0.2s ease, border-color 0.2s ease;
+            width: 100%;
         }
 
         @media (min-width: 768px) {
@@ -140,21 +158,19 @@
         }
 
         .form-section-title {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             color: var(--primary);
             border-bottom: 2px solid var(--primary);
             padding-bottom: 4px;
         }
 
-        .form-group {
-            margin-bottom: 12px;
-        }
+        .form-group { margin-bottom: 10px; }
 
         .form-group label {
             display: block;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 600;
             margin-bottom: 4px;
             color: var(--text-main);
@@ -162,65 +178,66 @@
 
         .form-group input, .form-group select {
             width: 100%;
-            padding: 10px 12px;
+            padding: 8px 10px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
-            box-sizing: border-box;
             background-color: var(--input-bg);
             color: var(--text-main);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-            min-height: 42px;
+            min-height: 40px;
         }
 
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 16px;
         }
 
         @media (min-width: 640px) {
-            .dashboard-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+            .dashboard-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
         }
 
         .dash-card {
             background: rgba(2, 132, 199, 0.08);
             border-left: 4px solid var(--primary);
-            padding: 10px 12px;
+            padding: 8px 10px;
             border-radius: 6px;
         }
 
-        .dash-card .val { font-size: 1.1rem; font-weight: 700; margin-top: 2px; color: var(--text-main); word-break: break-word; }
-        .dash-card .lbl { font-size: 0.75rem; opacity: 0.8; text-transform: uppercase; color: var(--text-main); }
+        .dash-card .val { font-size: 1rem; font-weight: 700; margin-top: 2px; color: var(--text-main); word-break: break-word; }
+        .dash-card .lbl { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; color: var(--text-main); }
 
         @media (min-width: 768px) {
-            .dash-card .val { font-size: 1.4rem; }
-            .dash-card { padding: 14px; }
+            .dash-card .val { font-size: 1.3rem; }
+            .dash-card { padding: 12px; }
         }
 
         .nav-tabs {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             border-bottom: 2px solid var(--border-color);
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             padding-bottom: 4px;
+            width: 100%;
         }
 
         .tab-btn {
             background: none;
             color: var(--text-main);
             border: none;
-            padding: 8px 12px;
+            padding: 8px 10px;
             border-bottom: 3px solid transparent;
             border-radius: 0;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             cursor: pointer;
             white-space: nowrap;
             flex-shrink: 0;
+            min-height: auto;
         }
 
         .tab-btn.active {
@@ -235,21 +252,22 @@
             width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85rem;
+            font-size: 0.78rem;
             color: var(--text-main);
-            min-width: 480px;
+            min-width: 100%;
         }
 
         th, td {
-            padding: 8px 10px;
+            padding: 6px 8px;
             border: 1px solid var(--border-color);
             text-align: left;
+            word-break: break-word;
         }
 
         th { background-color: var(--table-header); }
@@ -258,49 +276,57 @@
             background-color: rgba(239, 68, 68, 0.1);
             border: 1px solid var(--danger);
             color: var(--danger);
-            padding: 10px;
+            padding: 8px;
             border-radius: 6px;
-            margin-bottom: 16px;
-            font-size: 0.8rem;
+            margin-bottom: 12px;
+            font-size: 0.75rem;
         }
 
         .signature-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 20px;
-            margin-top: 30px;
+            gap: 16px;
+            margin-top: 24px;
             text-align: center;
         }
 
         @media (min-width: 640px) {
-            .signature-grid { grid-template-columns: repeat(3, 1fr); margin-top: 40px; }
+            .signature-grid { grid-template-columns: repeat(3, 1fr); margin-top: 36px; }
         }
 
         .sig-line {
             border-top: 1px solid currentColor;
-            margin-top: 40px;
-            padding-top: 6px;
-            font-size: 0.8rem;
+            margin-top: 30px;
+            padding-top: 4px;
+            font-size: 0.75rem;
+        }
+
+        #sld-svg {
+            width: 100% !important;
+            height: auto !important;
+            min-width: 0 !important;
+            background: rgba(0,0,0,0.02);
+            border-radius: 8px;
         }
 
         footer {
             text-align: center;
-            padding: 16px;
-            font-size: 0.75rem;
+            padding: 12px;
+            font-size: 0.7rem;
             opacity: 0.8;
-            margin-top: 30px;
+            margin-top: 20px;
             border-top: 1px solid var(--border-color);
             color: var(--text-main);
         }
 
         @media print {
-            body { background: white !important; color: black !important; user-select: auto; }
+            body { background: white !important; color: black !important; user-select: auto; overflow: visible; }
             .top-controls, .input-sidebar, .nav-tabs, footer { display: none !important; }
             .layout-grid { display: block; }
             .tab-content { display: block !important; page-break-after: always; }
-            .card { border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 30px !important; }
+            .card { border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 20px !important; }
             .print-only-footer { display: block !important; position: fixed; bottom: 0; font-size: 10px; }
-            table { min-width: 100% !important; }
+            table { width: 100% !important; }
         }
         .print-only-footer { display: none; }
     </style>
@@ -501,8 +527,8 @@
             <!-- TAB 3: SLD -->
             <div id="tab-sld" class="tab-content card">
                 <h3>04. Single Line Diagram (SLD)</h3>
-                <div style="width:100%; overflow-x:auto;">
-                    <svg id="sld-svg" viewBox="0 0 540 320" width="100%" height="auto" style="background: rgba(0,0,0,0.02); border-radius:8px; min-width:320px;">
+                <div style="width:100%; overflow-x:hidden;">
+                    <svg id="sld-svg" viewBox="0 0 540 320">
                         <!-- Dynamically Rendered SVG -->
                     </svg>
                 </div>
@@ -512,7 +538,7 @@
             <div id="tab-electrical" class="tab-content card">
                 <h3>05. Electrical Compliance & Specifications</h3>
                 <p><strong>Standards Baseline:</strong> Philippine Electrical Code (PNEC 2017 Part 1 & 2)</p>
-                <ul style="padding-left: 20px;">
+                <ul style="padding-left: 18px; font-size: 0.85rem;">
                     <li>All DC cabling must use PV1-F double-insulated UV-resistant solar cables.</li>
                     <li>Inverter and array frames must be solidly grounded back to the main ground electrode.</li>
                     <li>System includes AC/DC Surge Protective Devices (SPD) and direct DC Disconnect Isolators.</li>
@@ -553,7 +579,6 @@
         'Industrial':  { 'Grid-tie': 35000, 'Hybrid': 55000, 'Off-grid': 78000, eff: 0.80 }
     };
 
-    // Auto-clear logic with touch support
     function handleAutoClear(inputElement) {
         if (!inputElement.dataset.cleared) {
             inputElement.value = '';
@@ -761,7 +786,6 @@
         }
     }
 
-    // Attach autoClear events for both desktop focus and mobile touch
     document.addEventListener("DOMContentLoaded", function() {
         const allInputs = document.querySelectorAll('.input-sidebar input');
         allInputs.forEach(input => {
