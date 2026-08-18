@@ -442,7 +442,7 @@
             <!-- TAB 3: SLD -->
             <div id="tab-sld" class="tab-content card">
                 <h3>04. Single Line Diagram (SLD)</h3>
-                <svg id="sld-svg" width="100%" height="320" style="background: rgba(0,0,0,0.02); border-radius:8px;">
+                svg id="sld-svg" width="100%" height="320" style="background: rgba(0,0,0,0.02); border-radius:8px;">
                     <!-- Dynamically Rendered SVG -->
                 </svg>
             </div>
@@ -492,12 +492,15 @@
         'Industrial':  { 'Grid-tie': 35000, 'Hybrid': 55000, 'Off-grid': 78000, eff: 0.80 }
     };
 
-    // Auto-clear input on click / focus
+    // Universal Auto-clear at Auto-select Function sa lahat ng Input fields
     function autoClear(inputElement) {
         if (!inputElement.dataset.cleared) {
             inputElement.value = '';
             inputElement.dataset.cleared = 'true';
             calculate();
+        } else {
+            // Hi-highlight ang text para madaling palitan kung naka-type na dati
+            inputElement.select();
         }
     }
 
@@ -677,7 +680,6 @@
                 const el = document.getElementById(id);
                 if(el && data[id] !== undefined) {
                     el.value = data[id];
-                    // Tag as cleared so saved data won't accidentally clear on click
                     el.dataset.cleared = 'true';
                 }
             });
@@ -698,6 +700,16 @@
             location.reload();
         }
     }
+
+    // Attach autoClear event listener automatically to ALL input fields
+    document.addEventListener("DOMContentLoaded", function() {
+        const allInputs = document.querySelectorAll('.input-sidebar input');
+        allInputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                autoClear(this);
+            });
+        });
+    });
 
     document.addEventListener('contextmenu', event => event.preventDefault());
     document.onkeydown = function(e) {
