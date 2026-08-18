@@ -16,7 +16,7 @@
         }
 
         *, *:before, *:after {
-            box-sizing: inherit;
+            box-sizing: border-box;
         }
 
         :root {
@@ -56,6 +56,7 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 8px;
+            box-sizing: border-box;
         }
 
         @media (min-width: 768px) {
@@ -137,6 +138,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 12px;
+            width: 100%;
         }
 
         @media (min-width: 1025px) {
@@ -152,6 +154,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             transition: background-color 0.2s ease, border-color 0.2s ease;
             width: 100%;
+            box-sizing: border-box;
         }
 
         @media (min-width: 768px) {
@@ -187,12 +190,15 @@
             font-size: 0.9rem;
             transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
             min-height: 40px;
+            box-sizing: border-box;
         }
 
-        /* OUTPUT SECTION HIDDEN AT START */
+        /* OUTPUT SECTION */
         #output-section {
             display: none;
             width: 100%;
+            max-width: 100%;
+            overflow: hidden;
         }
 
         .dashboard-grid {
@@ -200,6 +206,7 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 8px;
             margin-bottom: 16px;
+            width: 100%;
         }
 
         @media (min-width: 640px) {
@@ -252,38 +259,42 @@
             color: var(--primary);
         }
 
-        /* FIXED TAB DISPLAY CONTROLS */
+        /* TAB CONTROLS */
         .tab-content { 
             display: none !important; 
             width: 100%;
+            box-sizing: border-box;
         }
         .tab-content.active { 
             display: block !important; 
         }
 
-        /* FIXED TABLE DISPLAY & SCROLLING */
+        /* FIX TABLE DISPLAY AND SCROLLING */
         .table-responsive {
             width: 100%;
-            overflow-x: auto;
+            max-width: 100%;
+            overflow-x: auto; /* Mabilis na horizontal scroll sa mobile */
             -webkit-overflow-scrolling: touch;
             margin-bottom: 16px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
+            display: block;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-main);
-            min-width: 500px; /* Tinitiyak na hindi magko-collapse ang columns */
+            table-layout: auto;
         }
 
         th, td {
-            padding: 10px 12px;
+            padding: 8px 10px;
             border: 1px solid var(--border-color);
             text-align: left;
-            word-break: normal;
+            white-space: normal;
+            word-break: break-word;
         }
 
         th { 
@@ -639,7 +650,6 @@
 
         calculate();
 
-        // Tinitiyak na naka-activate ang unang tab sa pag-generate
         const firstTabBtn = document.querySelector('.tab-btn');
         if (firstTabBtn) {
             switchTab('tab-specs', { target: firstTabBtn });
@@ -788,14 +798,12 @@
     }
 
     function switchTab(tabId, evt) {
-        // Alisin ang active class sa lahat ng tabs at buttons
         const contents = document.querySelectorAll('.tab-content');
         const buttons = document.querySelectorAll('.tab-btn');
         
         contents.forEach(el => el.classList.remove('active'));
         buttons.forEach(el => el.classList.remove('active'));
 
-        // Idagdag ang active class sa piniling tab at button
         const targetTab = document.getElementById(tabId);
         if (targetTab) {
             targetTab.classList.add('active');
@@ -851,13 +859,6 @@
             localStorage.removeItem('solar_theme');
             location.reload();
         }
-    }
-
-    document.addEventListener('contextmenu', event => event.preventDefault());
-    document.onkeydown = function(e) {
-        if(e.keyCode == 123) return false;
-        if(e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) return false;
-        if(e.ctrlKey && (e.keyCode == 85 || e.keyCode == 83)) return false;
     }
 
     window.onload = function() {
