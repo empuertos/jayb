@@ -458,24 +458,49 @@
         <div class="input-sidebar card">
             <div class="form-section-title">Client & Location</div>
             <div class="form-group">
-                <label>Project Name / Client *</label>
-                <input type="text" id="clientName" value="Juan Dela Cruz" placeholder="Juan Dela Cruz" onfocus="this.select()">
-            </div>
-            <div class="form-group">
-                <label>Location *</label>
-                <input type="text" id="location" value="Cebu City, Philippines" placeholder="Cebu City, Philippines" onfocus="this.select()">
-            </div>
-
-            <div class="form-section-title">System Specs</div>
-            <div class="form-group">
                 <label>System Scale *</label>
-                <select id="scale">
+                <select id="scale" onchange="toggleScaleFields()">
                     <option value="Residential">Residential (230V 1-Phase)</option>
                     <option value="Commercial">Commercial (400V 3-Phase)</option>
                     <option value="Mall">Mall (≥100kW, 400V 3-Phase)</option>
                     <option value="Industrial">Industrial (≥250kW, 400V 3-Phase)</option>
                 </select>
             </div>
+
+            <!-- RESIDENTIAL FIELD -->
+            <div id="res-fields">
+                <div class="form-group">
+                    <label>Client Name *</label>
+                    <input type="text" id="clientName" value="Juan Dela Cruz" placeholder="Juan Dela Cruz" onfocus="this.select()">
+                </div>
+                <div class="form-group">
+                    <label>Contact Number *</label>
+                    <input type="text" id="contactNum" value="09171234567" placeholder="09171234567" onfocus="this.select()">
+                </div>
+            </div>
+
+            <!-- COMMERCIAL / MALL / INDUSTRIAL FIELDS -->
+            <div id="com-fields" style="display:none;">
+                <div class="form-group">
+                    <label>Company Name *</label>
+                    <input type="text" id="companyName" value="ABC Enterprise Inc." placeholder="ABC Enterprise Inc." onfocus="this.select()">
+                </div>
+                <div class="form-group">
+                    <label>Company TIN *</label>
+                    <input type="text" id="companyTin" value="000-123-456-000" placeholder="000-123-456-000" onfocus="this.select()">
+                </div>
+                <div class="form-group">
+                    <label>Authorized Representative *</label>
+                    <input type="text" id="companyRep" value="Maria Santos (Operations Manager)" placeholder="Maria Santos" onfocus="this.select()">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Location *</label>
+                <input type="text" id="location" value="Cebu City, Philippines" placeholder="Cebu City, Philippines" onfocus="this.select()">
+            </div>
+
+            <div class="form-section-title">System Specs</div>
             <div class="form-group">
                 <label>System Type *</label>
                 <select id="sysType" onchange="toggleBatFields()">
@@ -596,6 +621,7 @@
                 <div class="table-responsive">
                     <table>
                         <tbody>
+                            <tr><td><strong>Client / Customer Details</strong></td><td id="out-client-info">--</td></tr>
                             <tr><td><strong>Daily Consumption Target</strong></td><td id="out-daily-load">-- kWh/day</td></tr>
                             <tr><td><strong>Calculated Array Output</strong></td><td id="out-kwp">-- kWp</td></tr>
                             <tr><td><strong>Recommended Inverter Rating</strong></td><td id="out-inv">-- kW</td></tr>
@@ -703,7 +729,7 @@
                 <p style="font-size: 0.82rem; margin-top: 0;">Total Agreed Amount: <strong><span id="out-contract-price">₱0.00</span> PHP</strong></p>
                 
                 <div class="signature-grid">
-                    <div><div class="sig-line">Client Signature</div></div>
+                    <div><div class="sig-line">Client / Rep Signature</div></div>
                     <div><div class="sig-line">Romil Daño<br>Lead Designer</div></div>
                     <div><div class="sig-line">Witness Signature</div></div>
                 </div>
@@ -725,6 +751,20 @@
         'Industrial':  { 'Grid-tie': 35000, 'Hybrid': 55000, 'Off-grid': 78000, eff: 0.80 }
     };
 
+    function toggleScaleFields() {
+        const scale = document.getElementById('scale').value;
+        const resFields = document.getElementById('res-fields');
+        const comFields = document.getElementById('com-fields');
+
+        if (scale === 'Residential') {
+            resFields.style.display = 'block';
+            comFields.style.display = 'none';
+        } else {
+            resFields.style.display = 'none';
+            comFields.style.display = 'block';
+        }
+    }
+
     function toggleBatFields() {
         const type = document.getElementById('sysType').value;
         const isBat = type === 'Hybrid' || type === 'Off-grid';
@@ -733,37 +773,42 @@
         document.getElementById('batLenGroup').style.display = isBat ? 'block' : 'none';
     }
 
-    function validateScaleAndConsumption(scale, monthlyKwh) {
-        let errorMsg = "";
-
+    function validateScaleAndInputs(scale, monthlyKwh) {
         if (isNaN(monthlyKwh) || monthlyKwh <= 0) {
             return "❌ Maglagay ng valid na Monthly Consumption (kWh).";
         }
 
-        switch (scale) {
-            case 'Residential':
-                if (monthlyKwh >= 3000) {
-                    errorMsg = "❌ ERROR: Ang Residential Scale ay para lamang sa ibaba ng 3,000 kWh/month. Paki-pili ang Commercial o Mall Scale.";
-                }
-                break;
-            case 'Commercial':
-                if (monthlyKwh < 3000 || monthlyKwh >= 15000) {
-                    errorMsg = "❌ ERROR: Ang Commercial Scale ay para lamang sa 3,000 kWh hanggang 14,999 kWh/month.";
-                }
-                break;
-            case 'Mall':
-                if (monthlyKwh < 15000 || monthlyKwh >= 40000) {
-                    errorMsg = "❌ ERROR: Ang Mall Scale (≥100kW) ay para lamang sa 15,000 kWh hanggang 39,999 kWh/month.";
-                }
-                break;
-            case 'Industrial':
-                if (monthlyKwh < 40000) {
-                    errorMsg = "❌ ERROR: Ang Industrial Scale (≥250kW) ay para lamang sa 40,000 kWh pataas bawat buwan.";
-                }
-                break;
+        // Validate mandatory Scale-specific fields
+        if (scale === 'Residential') {
+            const clientName = document.getElementById('clientName').value.trim();
+            const contactNum = document.getElementById('contactNum').value.trim();
+            if (!clientName) return "❌ Paki-lagay ang Client Name para sa Residential Scale.";
+            if (!contactNum) return "❌ Paki-lagay ang Contact Number para sa Residential Scale.";
+
+            if (monthlyKwh >= 3000) {
+                return "❌ ERROR: Ang Residential Scale ay para lamang sa ibaba ng 3,000 kWh/month. Paki-pili ang Commercial o Mall Scale.";
+            }
+        } else {
+            const companyName = document.getElementById('companyName').value.trim();
+            const companyTin = document.getElementById('companyTin').value.trim();
+            const companyRep = document.getElementById('companyRep').value.trim();
+
+            if (!companyName) return "❌ Paki-lagay ang Company Name.";
+            if (!companyTin) return "❌ Paki-lagay ang Company TIN.";
+            if (!companyRep) return "❌ Paki-lagay ang Authorized Representative.";
+
+            if (scale === 'Commercial' && (monthlyKwh < 3000 || monthlyKwh >= 15000)) {
+                return "❌ ERROR: Ang Commercial Scale ay para lamang sa 3,000 kWh hanggang 14,999 kWh/month.";
+            }
+            if (scale === 'Mall' && (monthlyKwh < 15000 || monthlyKwh >= 40000)) {
+                return "❌ ERROR: Ang Mall Scale (≥100kW) ay para lamang sa 15,000 kWh hanggang 39,999 kWh/month.";
+            }
+            if (scale === 'Industrial' && monthlyKwh < 40000) {
+                return "❌ ERROR: Ang Industrial Scale (≥250kW) ay para lamang sa 40,000 kWh pataas bawat buwan.";
+            }
         }
 
-        return errorMsg;
+        return "";
     }
 
     function generateDesign() {
@@ -775,19 +820,17 @@
         const banner = document.getElementById('print-guide-banner');
 
         // PRE-VALIDATION CHECK
-        const validationError = validateScaleAndConsumption(scale, monthlyKwh);
+        const validationError = validateScaleAndInputs(scale, monthlyKwh);
 
         if (validationError !== "") {
-            // SHOW ERROR AND BLOCK GENERATION
             errorBox.innerText = validationError;
             errorBox.style.display = 'block';
             outSection.style.display = 'none';
             if (printBtn) printBtn.style.display = 'none';
             if (banner) banner.style.display = 'none';
-            return; // STOP EXECUTION
+            return;
         }
 
-        // CLEAR ERROR IF VALID
         errorBox.style.display = 'none';
         outSection.style.display = 'block';
         if (printBtn) printBtn.style.display = 'inline-flex';
@@ -802,7 +845,6 @@
     }
 
     function calculate() {
-        const client = document.getElementById('clientName').value || 'N/A';
         const contractor = document.getElementById('contractor').value || 'N/A';
         const scale = document.getElementById('scale').value;
         const type = document.getElementById('sysType').value;
@@ -812,6 +854,18 @@
         const dcLen = parseFloat(document.getElementById('dcLen').value) || 10;
         const acLen = parseFloat(document.getElementById('acLen').value) || 10;
         const batLen = parseFloat(document.getElementById('batLen').value) || 3;
+
+        let clientLabel = "";
+        if (scale === 'Residential') {
+            const cName = document.getElementById('clientName').value;
+            const cPhone = document.getElementById('contactNum').value;
+            clientLabel = `${cName} (${cPhone})`;
+        } else {
+            const compName = document.getElementById('companyName').value;
+            const compTin = document.getElementById('companyTin').value;
+            const compRep = document.getElementById('companyRep').value;
+            clientLabel = `${compName} | TIN: ${compTin} | Rep: ${compRep}`;
+        }
 
         const isBat = type === 'Hybrid' || type === 'Off-grid';
 
@@ -894,6 +948,7 @@
         document.getElementById('dash-gen').innerText = estMonthlyKwh.toLocaleString();
         document.getElementById('dash-price').innerText = "₱" + totalPrice.toLocaleString(undefined, {maximumFractionDigits: 0});
 
+        document.getElementById('out-client-info').innerText = clientLabel;
         document.getElementById('out-daily-load').innerText = dailyKwh.toFixed(2) + " kWh/day";
         document.getElementById('out-kwp').innerText = actualKwp.toFixed(2) + " kWp (" + panelCount + " × " + panelWp + "Wp)";
         document.getElementById('out-inv').innerText = invCapacity.toFixed(1) + " kW";
@@ -905,7 +960,7 @@
         document.getElementById('out-cb').innerText = cbRating;
         document.getElementById('out-cb-poles').innerText = is3Phase ? "3-Pole" : "2-Pole";
 
-        document.querySelectorAll('.out-client').forEach(el => el.innerText = client);
+        document.querySelectorAll('.out-client').forEach(el => el.innerText = clientLabel);
         document.querySelectorAll('.out-contractor').forEach(el => el.innerText = contractor);
         document.getElementById('out-contract-kwp').innerText = actualKwp.toFixed(2);
         document.getElementById('out-contract-scale').innerText = scale;
@@ -984,7 +1039,7 @@
     }
 
     function saveToStorage() {
-        const inputs = ['clientName', 'location', 'scale', 'sysType', 'monthlyKwh', 'panelWp', 'psh', 'dcLen', 'acLen', 'batLen', 'batChem', 'batHours', 'contractor', 'prepBy'];
+        const inputs = ['clientName', 'contactNum', 'companyName', 'companyTin', 'companyRep', 'location', 'scale', 'sysType', 'monthlyKwh', 'panelWp', 'psh', 'dcLen', 'acLen', 'batLen', 'batChem', 'batHours', 'contractor', 'prepBy'];
         const data = {};
         inputs.forEach(id => {
             const el = document.getElementById(id);
@@ -1004,6 +1059,9 @@
                 }
             });
         }
+
+        toggleScaleFields();
+        toggleBatFields();
         
         const savedTheme = localStorage.getItem('solar_theme');
         if(savedTheme === 'dark') {
@@ -1024,7 +1082,6 @@
     window.onload = function() {
         const now = new Date();
         document.getElementById('current-date').innerText = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
-        toggleBatFields();
         loadFromStorage();
     };
 </script>
