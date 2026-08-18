@@ -173,6 +173,10 @@
             overflow-x: auto;
         }
 
+        body.dark-mode .nav-tabs {
+            border-bottom-color: var(--border-dark);
+        }
+
         .tab-btn {
             background: none;
             color: inherit;
@@ -247,7 +251,10 @@
             border-top: 1px solid var(--border-light);
         }
 
-        /* Print Settings */
+        body.dark-mode footer {
+            border-top-color: var(--border-dark);
+        }
+
         @media print {
             body { background: white !important; color: black !important; user-select: auto; }
             .top-controls, .input-sidebar, .nav-tabs, footer { display: none !important; }
@@ -401,11 +408,11 @@
 
             <!-- TABS -->
             <div class="nav-tabs">
-                <button class="tab-btn active" onclick="switchTab('tab-specs')">System Specs & Sizing</button>
-                <button class="tab-btn" onclick="switchTab('tab-battery')">Battery System</button>
-                <button class="tab-btn" onclick="switchTab('tab-sld')">SLD Diagram</button>
-                <button class="tab-btn" onclick="switchTab('tab-electrical')">Electrical Plan</button>
-                <button class="tab-btn" onclick="switchTab('tab-contract')">Contract Agreement</button>
+                <button class="tab-btn active" onclick="switchTab('tab-specs', event)">System Specs & Sizing</button>
+                <button class="tab-btn" onclick="switchTab('tab-battery', event)">Battery System</button>
+                <button class="tab-btn" onclick="switchTab('tab-sld', event)">SLD Diagram</button>
+                <button class="tab-btn" onclick="switchTab('tab-electrical', event)">Electrical Plan</button>
+                <button class="tab-btn" onclick="switchTab('tab-contract', event)">Contract Agreement</button>
             </div>
 
             <!-- TAB 1: SPECS -->
@@ -492,7 +499,6 @@
 </div>
 
 <script>
-    // System Pricing Rules per kWp
     const PRICING = {
         'Residential': { 'Grid-tie': 50000, 'Hybrid': 70000, 'Off-grid': 100000, eff: 0.75 },
         'Commercial':  { 'Grid-tie': 42000, 'Hybrid': 62000, 'Off-grid': 88000, eff: 0.77 },
@@ -501,4 +507,204 @@
     };
 
     function calculate() {
-        const cl
+        const client = document.getElementById('clientName').value || 'N/A';
+        const contractor = document.getElementById('contractor').value || 'N/A';
+        const scale = document.getElementById('scale').value;
+        const type = document.getElementById('sysType').value;
+        const monthlyKwh = parseFloat(document.getElementById('monthlyKwh').value) || 0;
+        const panelWp = parseInt(document.getElementById('panelWp').value);
+        const psh = parseFloat(document.getElementById('psh').value);
+        const dcLen = parseFloat(document.getElementById('dcLen').value) || 10;
+        const acLen = parseFloat(document.getElementById('acLen').value) || 10;
+
+        const isBat = type === 'Hybrid' || type === 'Off-grid';
+        document.getElementById('batFields').style.display = isBat ? 'block' : 'none';
+        document.getElementById('batTitle').style.display = isBat ? 'block' : 'none';
+        document.getElementById('batLenGroup').style.display = isBat ? 'block' : 'none';
+
+        const dailyKwh = monthlyKwh / 30;
+        const eff = PRICING[scale].eff;
+        let reqKwp = dailyKwh / (psh * eff);
+        reqKwp = Math.ceil(reqKwp * 10) / 10;
+
+        if(reqKwp <= 0) reqKwp = 1;
+
+        const panelCount = Math.ceil((reqKwp * 1000) / panelWp);
+        const actualKwp = (panelCount * panelWp) / 1000;
+
+        const panelsPerString = Math.min(panelCount, 10);
+        const strings = Math.ceil(panelCount / panelsPerString);
+        const arrayConfig = `${panelsPerString}S × ${strings}P`;
+
+        const invCapacity = Math.ceil(actualKwp * 1.3 * 10) / 10;
+        const is3Phase = scale !== 'Residential';
+        const phaseText = is3Phase ? '400V 3-Phase' : '230V Single-Phase';
+
+        const estMonthlyKwh = Math.round(actualKwp * psh * 30 * eff);
+        const totalPrice = actualKwp * PRICING[scale][type];
+
+        const dcCurrent = strings * 11;
+        let dcWire = "4.0 mm²";
+        if(dcCurrent > 25) dcWire = "6.0 mm²";
+        if(dcCurrent > 40) dcWire = "10.0 mm²";
+        const dcVd = ((2 * dcLen * dcCurrent * 0.018) / (dcWire.includes('4.0')? 4 : 6)).toFixed(2);
+
+        const acCurrent = is3Phase ? (invCapacity * 1000) / (1.732 * 400 * 0.9) : (invCapacity * 1000) / (230 * 0.9);
+        let acWire = "5.5 mm²";
+        let cbRating = "20A";
+        if (acCurrent > 20) { acWire = "8.0 mm²"; cbRating = "32A"; }
+        if (acCurrent > 32) { acWire = "14.0 mm²"; cbRating = "50A"; }
+        if (acCurrent > 50) { acWire = "22.0 mm²"; cbRating = "63A"; }
+        if (acCurrent > 63) { acWire = "38.0 mm²"; cbRating = "100A"; }
+        if (acCurrent > 100) { acWire = "80.0 mm²"; cbRating = "150A"; }
+
+        const acVd = ((2 * acLen * acCurrent * 0.018) / parseFloat(acWire)).toFixed(2);
+
+        let batKwh = 0, batUsable = 0, batAh = 0, batWire = "14 mm²";
+        if (isBat) {
+            const chem = document.getElementById('batChem').value;
+            const hours = parseFloat(document.getElementById('batHours').value) || 12;
+            const dod = chem === 'LiFePO4' ? 0.8 : 0.5;
+            
+            batKwh = ((dailyKwh * (hours / 24)) / dod) * 1.15 * 1.10;
+            batUsable = batKwh * dod;
+            batAh = (batKwh * 1000) / 48;
+
+            const maxDischargeCurrent = (invCapacity * 1000) / 48;
+            if (maxDischargeCurrent > 80) batWire = "22 mm²";
+            if (maxDischargeCurrent > 120) batWire = "38 mm²";
+            if (maxDischargeCurrent > 200) batWire = "60 mm²";
+
+            document.getElementById('out-bat-kwh').innerText = batKwh.toFixed(2) + " kWh";
+            document.getElementById('out-bat-usable').innerText = batUsable.toFixed(2) + " kWh";
+            document.getElementById('out-bat-ah').innerText = Math.round(batAh) + " Ah";
+            document.getElementById('out-bat-wire').innerText = batWire;
+            document.getElementById('bat-warn').style.display = chem === 'Lead-Acid' ? 'block' : 'none';
+        }
+
+        document.getElementById('dash-kwp').innerText = actualKwp.toFixed(2) + " kWp";
+        document.getElementById('dash-panels').innerText = panelCount;
+        document.getElementById('dash-array').innerText = arrayConfig;
+        document.getElementById('dash-gen').innerText = estMonthlyKwh.toLocaleString();
+        document.getElementById('dash-price').innerText = "₱" + totalPrice.toLocaleString(undefined, {maximumFractionDigits: 0});
+
+        document.getElementById('out-daily-load').innerText = dailyKwh.toFixed(2) + " kWh/day";
+        document.getElementById('out-kwp').innerText = actualKwp.toFixed(2) + " kWp (" + panelCount + " × " + panelWp + "Wp)";
+        document.getElementById('out-inv').innerText = invCapacity.toFixed(1) + " kW";
+        document.getElementById('out-phase').innerText = phaseText;
+        document.getElementById('out-dc-wire').innerText = dcWire;
+        document.getElementById('out-dc-vd').innerText = dcVd;
+        document.getElementById('out-ac-wire').innerText = acWire;
+        document.getElementById('out-ac-vd').innerText = acVd;
+        document.getElementById('out-cb').innerText = cbRating;
+        document.getElementById('out-cb-poles').innerText = is3Phase ? "3-Pole" : "2-Pole";
+
+        document.querySelectorAll('.out-client').forEach(el => el.innerText = client);
+        document.querySelectorAll('.out-contractor').forEach(el => el.innerText = contractor);
+        document.getElementById('out-contract-kwp').innerText = actualKwp.toFixed(2);
+        document.getElementById('out-contract-scale').innerText = scale;
+        document.getElementById('out-contract-price').innerText = "₱" + totalPrice.toLocaleString(undefined, {minimumFractionDigits:2});
+
+        document.getElementById('out-combiner-note').innerText = strings >= 4 ? 
+            `DC Combiner Box Recommended: ${strings} Strings input with individual fuses and SPD.` : 
+            "Standard string connection directly into MPPT inputs.";
+
+        renderSLD(arrayConfig, invCapacity, is3Phase, isBat);
+        saveToStorage();
+    }
+
+    function renderSLD(arrayConfig, invCap, is3Phase, isBat) {
+        const svg = document.getElementById('sld-svg');
+        let html = `
+            <rect x="20" y="100" width="100" height="80" rx="6" fill="#0284c7" />
+            <text x="70" y="135" fill="white" font-size="12" text-anchor="middle" font-weight="bold">PV ARRAY</text>
+            <text x="70" y="155" fill="white" font-size="10" text-anchor="middle">${arrayConfig}</text>
+
+            <line x1="120" y1="140" x2="220" y2="140" stroke="#0284c7" stroke-width="3" />
+            <text x="170" y="130" font-size="10" text-anchor="middle" fill="currentColor">DC Cable</text>
+
+            <rect x="220" y="100" width="100" height="80" rx="6" fill="#0369a1" />
+            <text x="270" y="135" fill="white" font-size="12" text-anchor="middle" font-weight="bold">INVERTER</text>
+            <text x="270" y="155" fill="white" font-size="10" text-anchor="middle">${invCap} kW</text>
+
+            <line x1="320" y1="140" x2="420" y2="140" stroke="#10b981" stroke-width="3" />
+            <text x="370" y="130" font-size="10" text-anchor="middle" fill="currentColor">AC Cable</text>
+
+            <rect x="420" y="100" width="100" height="80" rx="6" fill="#10b981" />
+            <text x="470" y="135" fill="white" font-size="12" text-anchor="middle" font-weight="bold">MAIN PANEL</text>
+            <text x="470" y="155" fill="white" font-size="10" text-anchor="middle">${is3Phase ? '400V 3Ø' : '230V 1Ø'}</text>
+        `;
+
+        if(isBat) {
+            html += `
+                <line x1="270" y1="180" x2="270" y2="240" stroke="#f59e0b" stroke-width="3" stroke-dasharray="4" />
+                <rect x="220" y="240" width="100" height="50" rx="6" fill="#f59e0b" />
+                <text x="270" y="270" fill="white" font-size="12" text-anchor="middle" font-weight="bold">BATTERY</text>
+            `;
+        }
+
+        svg.innerHTML = html;
+    }
+
+    function switchTab(tabId, evt) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if (evt && evt.target) {
+            evt.target.classList.add('active');
+        }
+    }
+
+    function toggleTheme() {
+        const isDark = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('solar_theme', isDark ? 'dark' : 'light');
+    }
+
+    function saveToStorage() {
+        const inputs = ['clientName', 'location', 'scale', 'sysType', 'monthlyKwh', 'panelWp', 'psh', 'dcLen', 'acLen', 'batLen', 'batChem', 'batHours', 'contractor', 'prepBy'];
+        const data = {};
+        inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) data[id] = el.value;
+        });
+        localStorage.setItem('solar_pv_data', JSON.stringify(data));
+    }
+
+    function loadFromStorage() {
+        const saved = localStorage.getItem('solar_pv_data');
+        if (saved) {
+            const data = JSON.parse(saved);
+            Object.keys(data).forEach(id => {
+                if(document.getElementById(id)) document.getElementById(id).value = data[id];
+            });
+        }
+        
+        if(localStorage.getItem('solar_theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    }
+
+    function clearData() {
+        if(confirm("Are you sure you want to clear saved project data?")) {
+            localStorage.removeItem('solar_pv_data');
+            localStorage.removeItem('solar_theme');
+            location.reload();
+        }
+    }
+
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.onkeydown = function(e) {
+        if(e.keyCode == 123) return false;
+        if(e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) return false;
+        if(e.ctrlKey && (e.keyCode == 85 || e.keyCode == 83)) return false;
+    }
+
+    window.onload = function() {
+        const now = new Date();
+        document.getElementById('current-date').innerText = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
+        loadFromStorage();
+        calculate();
+    };
+</script>
+</body>
+</html>
