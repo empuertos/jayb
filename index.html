@@ -19,7 +19,6 @@
             box-sizing: inherit;
         }
 
-        /* Base Light Theme Variables */
         :root {
             --primary: #0284c7;
             --primary-dark: #0369a1;
@@ -34,7 +33,6 @@
             --success: #10b981;
         }
 
-        /* Dark Theme Variable Overrides */
         body.dark-mode {
             --bg-body: #0f172a;
             --bg-card: #1e293b;
@@ -131,6 +129,9 @@
         button:hover { background-color: var(--primary-dark); transform: translateY(-1px); }
         .btn-danger { background-color: var(--danger); }
         .btn-danger:hover { background-color: #dc2626; }
+        
+        .btn-success { background-color: var(--success); width: 100%; margin-top: 10px; font-size: 1rem; }
+        .btn-success:hover { background-color: #059669; }
 
         .layout-grid {
             display: grid;
@@ -186,6 +187,11 @@
             font-size: 0.9rem;
             transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
             min-height: 40px;
+        }
+
+        /* NAKA-HIDE ITO SA SIMULA */
+        #output-section {
+            display: none;
         }
 
         .dashboard-grid {
@@ -323,6 +329,7 @@
             body { background: white !important; color: black !important; user-select: auto; overflow: visible; }
             .top-controls, .input-sidebar, .nav-tabs, footer { display: none !important; }
             .layout-grid { display: block; }
+            #output-section { display: block !important; }
             .tab-content { display: block !important; page-break-after: always; }
             .card { border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 20px !important; }
             .print-only-footer { display: block !important; position: fixed; bottom: 0; font-size: 10px; }
@@ -353,22 +360,22 @@
     </header>
 
     <div class="layout-grid">
-        <!-- FORM SIDEBAR -->
+        <!-- FORM SIDEBAR (LALABAS MUNA ITO) -->
         <div class="input-sidebar card">
             <div class="form-section-title">Client & Project Info</div>
             <div class="form-group">
                 <label>Project Name / Client *</label>
-                <input type="text" id="clientName" value="Juan Dela Cruz" placeholder="Juan Dela Cruz" oninput="calculate()">
+                <input type="text" id="clientName" value="Juan Dela Cruz" placeholder="Juan Dela Cruz">
             </div>
             <div class="form-group">
                 <label>Location *</label>
-                <input type="text" id="location" value="Cebu City, Philippines" placeholder="Cebu City, Philippines" oninput="calculate()">
+                <input type="text" id="location" value="Cebu City, Philippines" placeholder="Cebu City, Philippines">
             </div>
 
             <div class="form-section-title">System Specs</div>
             <div class="form-group">
                 <label>System Scale *</label>
-                <select id="scale" onchange="calculate()">
+                <select id="scale">
                     <option value="Residential">Residential (230V 1-Phase)</option>
                     <option value="Commercial">Commercial (400V 3-Phase)</option>
                     <option value="Mall">Mall (≥100kW, 400V 3-Phase)</option>
@@ -377,7 +384,7 @@
             </div>
             <div class="form-group">
                 <label>System Type *</label>
-                <select id="sysType" onchange="calculate()">
+                <select id="sysType" onchange="toggleBatFields()">
                     <option value="Grid-tie">Grid-tie</option>
                     <option value="Hybrid">Hybrid</option>
                     <option value="Off-grid">Off-grid</option>
@@ -385,11 +392,11 @@
             </div>
             <div class="form-group">
                 <label>Monthly kWh Consumption *</label>
-                <input type="number" id="monthlyKwh" value="1200" placeholder="1200" oninput="calculate()">
+                <input type="number" id="monthlyKwh" value="1200" placeholder="1200">
             </div>
             <div class="form-group">
                 <label>Panel Power (Wp) *</label>
-                <select id="panelWp" onchange="calculate()">
+                <select id="panelWp">
                     <option value="400">400 Wp</option>
                     <option value="450">450 Wp</option>
                     <option value="500">500 Wp</option>
@@ -398,7 +405,7 @@
             </div>
             <div class="form-group">
                 <label>Peak Sun Hours (Region) *</label>
-                <select id="psh" onchange="calculate()">
+                <select id="psh">
                     <option value="5.0">Luzon / Manila (5.0 hrs)</option>
                     <option value="4.5" selected>Central Visayas / Cebu (4.5 hrs)</option>
                     <option value="4.0">Mindanao (4.0 hrs)</option>
@@ -408,45 +415,47 @@
             <div class="form-section-title">Wiring Distances</div>
             <div class="form-group">
                 <label>DC Wire Length (meters) *</label>
-                <input type="number" id="dcLen" value="25" placeholder="25" oninput="calculate()">
+                <input type="number" id="dcLen" value="25" placeholder="25">
             </div>
             <div class="form-group">
                 <label>AC Wire Length (meters) *</label>
-                <input type="number" id="acLen" value="15" placeholder="15" oninput="calculate()">
+                <input type="number" id="acLen" value="15" placeholder="15">
             </div>
-            <div class="form-group" id="batLenGroup">
+            <div class="form-group" id="batLenGroup" style="display:none;">
                 <label>Battery Cable Length (meters)</label>
-                <input type="number" id="batLen" value="3" placeholder="3" oninput="calculate()">
+                <input type="number" id="batLen" value="3" placeholder="3">
             </div>
 
-            <div class="form-section-title" id="batTitle">Battery Configuration</div>
-            <div id="batFields">
+            <div class="form-section-title" id="batTitle" style="display:none;">Battery Configuration</div>
+            <div id="batFields" style="display:none;">
                 <div class="form-group">
                     <label>Battery Chemistry *</label>
-                    <select id="batChem" onchange="calculate()">
+                    <select id="batChem">
                         <option value="LiFePO4">LiFePO4 (80% DoD)</option>
                         <option value="Lead-Acid">Lead-Acid (50% DoD)</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Autonomy Hours *</label>
-                    <input type="number" id="batHours" value="12" placeholder="12" oninput="calculate()">
+                    <input type="number" id="batHours" value="12" placeholder="12">
                 </div>
             </div>
 
             <div class="form-section-title">Signatures & Contractor</div>
             <div class="form-group">
                 <label>Contractor Name *</label>
-                <input type="text" id="contractor" value="Solar Power Solutions Philippines" placeholder="Solar Power Solutions Philippines" oninput="calculate()">
+                <input type="text" id="contractor" value="Solar Power Solutions Philippines" placeholder="Solar Power Solutions Philippines">
             </div>
             <div class="form-group">
                 <label>Prepared By *</label>
-                <input type="text" id="prepBy" value="Romil Daño" placeholder="Romil Daño" oninput="calculate()">
+                <input type="text" id="prepBy" value="Romil Daño" placeholder="Romil Daño">
             </div>
+
+            <button class="btn-success" onclick="generateDesign()">⚡ GENERATE DESIGN</button>
         </div>
 
-        <!-- MAIN OUTPUT DISPLAY -->
-        <div>
+        <!-- MAIN OUTPUT DISPLAY (LALABAS LAMANG MATAPOS I-CLICK ANG BUTTON) -->
+        <div id="output-section">
             <!-- DASHBOARD HIGHLIGHTS -->
             <div class="dashboard-grid">
                 <div class="dash-card">
@@ -529,7 +538,7 @@
                 <h3>04. Single Line Diagram (SLD)</h3>
                 <div style="width:100%; overflow-x:hidden;">
                     <svg id="sld-svg" viewBox="0 0 540 320">
-                        <!-- Dynamically Rendered SVG -->
+                        <!-- SVG -->
                     </svg>
                 </div>
             </div>
@@ -579,13 +588,25 @@
         'Industrial':  { 'Grid-tie': 35000, 'Hybrid': 55000, 'Off-grid': 78000, eff: 0.80 }
     };
 
-    function handleAutoClear(inputElement) {
-        if (!inputElement.dataset.cleared) {
-            inputElement.value = '';
-            inputElement.dataset.cleared = 'true';
-            calculate();
-        } else {
-            inputElement.select();
+    function toggleBatFields() {
+        const type = document.getElementById('sysType').value;
+        const isBat = type === 'Hybrid' || type === 'Off-grid';
+        document.getElementById('batFields').style.display = isBat ? 'block' : 'none';
+        document.getElementById('batTitle').style.display = isBat ? 'block' : 'none';
+        document.getElementById('batLenGroup').style.display = isBat ? 'block' : 'none';
+    }
+
+    function generateDesign() {
+        // Unhide Output Section
+        const outSection = document.getElementById('output-section');
+        outSection.style.display = 'block';
+
+        // Calculate System Specs
+        calculate();
+
+        // Scroll to results on mobile view
+        if (window.innerWidth <= 1024) {
+            outSection.scrollIntoView({ behavior: 'smooth' });
         }
     }
 
@@ -601,9 +622,6 @@
         const acLen = parseFloat(document.getElementById('acLen').value) || 10;
 
         const isBat = type === 'Hybrid' || type === 'Off-grid';
-        document.getElementById('batFields').style.display = isBat ? 'block' : 'none';
-        document.getElementById('batTitle').style.display = isBat ? 'block' : 'none';
-        document.getElementById('batLenGroup').style.display = isBat ? 'block' : 'none';
 
         const dailyKwh = monthlyKwh / 30;
         const eff = PRICING[scale].eff;
@@ -765,9 +783,10 @@
                 const el = document.getElementById(id);
                 if(el && data[id] !== undefined) {
                     el.value = data[id];
-                    el.dataset.cleared = 'true';
                 }
             });
+            // Show results directly if user has saved data
+            generateDesign();
         }
         
         const savedTheme = localStorage.getItem('solar_theme');
@@ -786,14 +805,6 @@
         }
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-        const allInputs = document.querySelectorAll('.input-sidebar input');
-        allInputs.forEach(input => {
-            input.addEventListener('focus', function() { handleAutoClear(this); });
-            input.addEventListener('touchstart', function() { handleAutoClear(this); }, {passive: true});
-        });
-    });
-
     document.addEventListener('contextmenu', event => event.preventDefault());
     document.onkeydown = function(e) {
         if(e.keyCode == 123) return false;
@@ -804,8 +815,8 @@
     window.onload = function() {
         const now = new Date();
         document.getElementById('current-date').innerText = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
+        toggleBatFields();
         loadFromStorage();
-        calculate();
     };
 </script>
 </body>
