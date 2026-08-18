@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Solar PV Design Engine | © Romil Daño 2026</title>
     <style>
-        /* Strict Viewport Fit & Global Reset */
         *, *:before, *:after {
             box-sizing: border-box;
             max-width: 100%;
@@ -95,9 +94,35 @@
         .btn-success { background-color: var(--success); width: 100%; margin-top: 14px; font-size: 0.95rem; }
         .btn-success:hover { background-color: #059669; }
 
-        /* NAKATAGO ANG PRINT BUTTON SA SIMULA */
+        /* PRINT BUTTON AT ANIMATION */
         #print-btn {
             display: none;
+        }
+
+        .btn-pulse {
+            animation: pulse-animation 1.5s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* INSTRUCTION BANNER */
+        .print-guide-banner {
+            display: none;
+            background: #10b981;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
         /* Header Bar */
@@ -149,7 +174,6 @@
             .layout-grid { grid-template-columns: 350px calc(100% - 366px); gap: 16px; }
         }
 
-        /* Responsive Container Card */
         .card {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -354,7 +378,7 @@
 
         @media print {
             body { background: #ffffff !important; color: #000000 !important; }
-            .top-controls, .input-sidebar, .nav-tabs, footer { display: none !important; }
+            .top-controls, .input-sidebar, .nav-tabs, footer, .print-guide-banner { display: none !important; }
             .layout-grid { display: block; }
             #output-section { display: block !important; }
             .tab-content { display: block !important; page-break-after: always; }
@@ -371,8 +395,7 @@
     <div class="top-controls">
         <button id="theme-btn" onclick="toggleTheme()">☀️ Theme</button>
         <button class="btn-danger" onclick="clearData()">Clear Data</button>
-        <!-- NAKALAGAY ANG ID NA "print-btn" -->
-        <button id="print-btn" onclick="window.print()">🖨️ Print / PDF</button>
+        <button id="print-btn" class="btn-success btn-pulse" onclick="window.print()">🖨️ Print / PDF</button>
     </div>
 
     <header>
@@ -427,7 +450,6 @@
                 <select id="panelWp">
                     <option value="400">400 Wp</option>
                     <option value="450">450 Wp</option>
-                    <option value="500">500 Wp</option>
                     <option value="550" selected>550 Wp</option>
                 </select>
             </div>
@@ -484,6 +506,12 @@
 
         <!-- MAIN OUTPUT DISPLAY -->
         <div id="output-section">
+            
+            <!-- INSTRUCTION BANNER NA NAGTOTORO SA TAAS -->
+            <div id="print-guide-banner" class="print-guide-banner">
+                <span>⬆️ Design Generated! Click the <strong>🖨️ Print / PDF</strong> button at the top right to print or save.</span>
+            </div>
+
             <!-- DASHBOARD METRICS -->
             <div class="dashboard-grid">
                 <div class="dash-card">
@@ -651,11 +679,15 @@
     function generateDesign() {
         const outSection = document.getElementById('output-section');
         const printBtn = document.getElementById('print-btn');
+        const banner = document.getElementById('print-guide-banner');
 
-        // LALABAS ANG OUTPUT SECTION AT PRINT BUTTON
+        // LALABAS ANG OUTPUT SECTION, PRINT BUTTON AT BANNER
         outSection.style.display = 'block';
         if (printBtn) {
             printBtn.style.display = 'inline-flex';
+        }
+        if (banner) {
+            banner.style.display = 'flex';
         }
 
         calculate();
@@ -665,9 +697,8 @@
             switchTab('tab-specs', { target: firstTabBtn });
         }
 
-        if (window.innerWidth <= 1024) {
-            outSection.scrollIntoView({ behavior: 'smooth' });
-        }
+        // AUTOMATIC SCROLL SA TAAS PARA NAKATUITO ANG PRINT BUTTON
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function calculate() {
@@ -778,27 +809,22 @@
     function renderSLD(arrayConfig, invCap, is3Phase, isBat, dcLen, dcWire, acLen, acWire, batLen, batWire) {
         const svg = document.getElementById('sld-svg');
         let html = `
-            <!-- PV ARRAY -->
             <rect x="20" y="100" width="100" height="80" rx="6" fill="#0284c7" />
             <text x="70" y="135" fill="white" font-size="12" text-anchor="middle" font-weight="bold">PV ARRAY</text>
             <text x="70" y="155" fill="white" font-size="10" text-anchor="middle">${arrayConfig}</text>
 
-            <!-- DC WIRING CONNECTION -->
             <line x1="120" y1="140" x2="230" y2="140" stroke="#0284c7" stroke-width="3" />
             <text x="175" y="125" font-size="10" text-anchor="middle" font-weight="bold" fill="currentColor">DC Cable</text>
             <text x="175" y="158" font-size="9" text-anchor="middle" fill="currentColor">${dcLen}m | ${dcWire}</text>
 
-            <!-- INVERTER -->
             <rect x="230" y="100" width="100" height="80" rx="6" fill="#0369a1" />
             <text x="280" y="135" fill="white" font-size="12" text-anchor="middle" font-weight="bold">INVERTER</text>
             <text x="280" y="155" fill="white" font-size="10" text-anchor="middle">${invCap} kW</text>
 
-            <!-- AC WIRING CONNECTION -->
             <line x1="330" y1="140" x2="440" y2="140" stroke="#10b981" stroke-width="3" />
             <text x="385" y="125" font-size="10" text-anchor="middle" font-weight="bold" fill="currentColor">AC Cable</text>
             <text x="385" y="158" font-size="9" text-anchor="middle" fill="currentColor">${acLen}m | ${acWire}</text>
 
-            <!-- MAIN PANEL -->
             <rect x="440" y="100" width="100" height="80" rx="6" fill="#10b981" />
             <text x="490" y="135" fill="white" font-size="12" text-anchor="middle" font-weight="bold">MAIN PANEL</text>
             <text x="490" y="155" fill="white" font-size="10" text-anchor="middle">${is3Phase ? '400V 3Ø' : '230V 1Ø'}</text>
@@ -806,12 +832,10 @@
 
         if(isBat) {
             html += `
-                <!-- BATTERY WIRING CONNECTION -->
                 <line x1="280" y1="180" x2="280" y2="250" stroke="#f59e0b" stroke-width="3" stroke-dasharray="4" />
                 <text x="290" y="210" font-size="9" font-weight="bold" fill="currentColor">Bat Cable</text>
                 <text x="290" y="225" font-size="9" fill="currentColor">${batLen}m | ${batWire}</text>
 
-                <!-- BATTERY BANK -->
                 <rect x="230" y="250" width="100" height="55" rx="6" fill="#f59e0b" />
                 <text x="280" y="282" fill="white" font-size="12" text-anchor="middle" font-weight="bold">BATTERY BANK</text>
             `;
