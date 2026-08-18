@@ -360,16 +360,16 @@
     </header>
 
     <div class="layout-grid">
-        <!-- FORM SIDEBAR (ITO LAMANG ANG NAKALITAW SA SIMULA) -->
+        <!-- FORM SIDEBAR WITH AUTO-HIGHLIGHT / AUTO-SELECT -->
         <div class="input-sidebar card">
             <div class="form-section-title">Client & Project Info</div>
             <div class="form-group">
                 <label>Project Name / Client *</label>
-                <input type="text" id="clientName" value="Juan Dela Cruz" placeholder="Juan Dela Cruz">
+                <input type="text" id="clientName" value="Juan Dela Cruz" placeholder="Juan Dela Cruz" onfocus="this.select()">
             </div>
             <div class="form-group">
                 <label>Location *</label>
-                <input type="text" id="location" value="Cebu City, Philippines" placeholder="Cebu City, Philippines">
+                <input type="text" id="location" value="Cebu City, Philippines" placeholder="Cebu City, Philippines" onfocus="this.select()">
             </div>
 
             <div class="form-section-title">System Specs</div>
@@ -392,7 +392,7 @@
             </div>
             <div class="form-group">
                 <label>Monthly kWh Consumption *</label>
-                <input type="number" id="monthlyKwh" value="1200" placeholder="1200">
+                <input type="number" id="monthlyKwh" value="1200" placeholder="1200" onfocus="this.select()">
             </div>
             <div class="form-group">
                 <label>Panel Power (Wp) *</label>
@@ -415,15 +415,15 @@
             <div class="form-section-title">Wiring Distances</div>
             <div class="form-group">
                 <label>DC Wire Length (meters) *</label>
-                <input type="number" id="dcLen" value="25" placeholder="25">
+                <input type="number" id="dcLen" value="25" placeholder="25" onfocus="this.select()">
             </div>
             <div class="form-group">
                 <label>AC Wire Length (meters) *</label>
-                <input type="number" id="acLen" value="15" placeholder="15">
+                <input type="number" id="acLen" value="15" placeholder="15" onfocus="this.select()">
             </div>
             <div class="form-group" id="batLenGroup" style="display:none;">
                 <label>Battery Cable Length (meters)</label>
-                <input type="number" id="batLen" value="3" placeholder="3">
+                <input type="number" id="batLen" value="3" placeholder="3" onfocus="this.select()">
             </div>
 
             <div class="form-section-title" id="batTitle" style="display:none;">Battery Configuration</div>
@@ -437,24 +437,24 @@
                 </div>
                 <div class="form-group">
                     <label>Autonomy Hours *</label>
-                    <input type="number" id="batHours" value="12" placeholder="12">
+                    <input type="number" id="batHours" value="12" placeholder="12" onfocus="this.select()">
                 </div>
             </div>
 
             <div class="form-section-title">Signatures & Contractor</div>
             <div class="form-group">
                 <label>Contractor Name *</label>
-                <input type="text" id="contractor" value="Solar Power Solutions Philippines" placeholder="Solar Power Solutions Philippines">
+                <input type="text" id="contractor" value="Solar Power Solutions Philippines" placeholder="Solar Power Solutions Philippines" onfocus="this.select()">
             </div>
             <div class="form-group">
                 <label>Prepared By *</label>
-                <input type="text" id="prepBy" value="Romil Daño" placeholder="Romil Daño">
+                <input type="text" id="prepBy" value="Romil Daño" placeholder="Romil Daño" onfocus="this.select()">
             </div>
 
             <button class="btn-success" onclick="generateDesign()">⚡ GENERATE DESIGN</button>
         </div>
 
-        <!-- MAIN OUTPUT DISPLAY (LALABAS LANG KAPAG PININDOT ANG GENERATE DESIGN) -->
+        <!-- MAIN OUTPUT DISPLAY -->
         <div id="output-section">
             <!-- DASHBOARD HIGHLIGHTS -->
             <div class="dashboard-grid">
@@ -597,14 +597,11 @@
     }
 
     function generateDesign() {
-        // Ipa-pakita ang buong Output Section kasama ang Tabs at Results
         const outSection = document.getElementById('output-section');
         outSection.style.display = 'block';
 
-        // Kwentahin ang mga ilalabas na datos
         calculate();
 
-        // Kusa nitong i-scroll ang screen papunta sa results kapag naka-mobile phone
         if (window.innerWidth <= 1024) {
             outSection.scrollIntoView({ behavior: 'smooth' });
         }
