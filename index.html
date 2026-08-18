@@ -279,11 +279,11 @@
             <div class="form-section-title">Client & Project Info</div>
             <div class="form-group">
                 <label>Project Name / Client *</label>
-                <input type="text" id="clientName" value="Juan Dela Cruz" oninput="calculate()">
+                <input type="text" id="clientName" value="Juan Dela Cruz" placeholder="Juan Dela Cruz" onfocus="autoClear(this)" oninput="calculate()">
             </div>
             <div class="form-group">
                 <label>Location *</label>
-                <input type="text" id="location" value="Cebu City, Philippines" oninput="calculate()">
+                <input type="text" id="location" value="Cebu City, Philippines" placeholder="Cebu City, Philippines" onfocus="autoClear(this)" oninput="calculate()">
             </div>
 
             <div class="form-section-title">System Specs</div>
@@ -306,7 +306,7 @@
             </div>
             <div class="form-group">
                 <label>Monthly kWh Consumption *</label>
-                <input type="number" id="monthlyKwh" value="1200" oninput="calculate()">
+                <input type="number" id="monthlyKwh" value="1200" placeholder="1200" onfocus="autoClear(this)" oninput="calculate()">
             </div>
             <div class="form-group">
                 <label>Panel Power (Wp) *</label>
@@ -329,15 +329,15 @@
             <div class="form-section-title">Wiring Distances</div>
             <div class="form-group">
                 <label>DC Wire Length (meters) *</label>
-                <input type="number" id="dcLen" value="25" oninput="calculate()">
+                <input type="number" id="dcLen" value="25" placeholder="25" onfocus="autoClear(this)" oninput="calculate()">
             </div>
             <div class="form-group">
                 <label>AC Wire Length (meters) *</label>
-                <input type="number" id="acLen" value="15" oninput="calculate()">
+                <input type="number" id="acLen" value="15" placeholder="15" onfocus="autoClear(this)" oninput="calculate()">
             </div>
             <div class="form-group" id="batLenGroup">
                 <label>Battery Cable Length (meters)</label>
-                <input type="number" id="batLen" value="3" oninput="calculate()">
+                <input type="number" id="batLen" value="3" placeholder="3" onfocus="autoClear(this)" oninput="calculate()">
             </div>
 
             <div class="form-section-title" id="batTitle">Battery Configuration</div>
@@ -351,18 +351,18 @@
                 </div>
                 <div class="form-group">
                     <label>Autonomy Hours *</label>
-                    <input type="number" id="batHours" value="12" oninput="calculate()">
+                    <input type="number" id="batHours" value="12" placeholder="12" onfocus="autoClear(this)" oninput="calculate()">
                 </div>
             </div>
 
             <div class="form-section-title">Signatures & Contractor</div>
             <div class="form-group">
                 <label>Contractor Name *</label>
-                <input type="text" id="contractor" value="Solar Power Solutions Philippines" oninput="calculate()">
+                <input type="text" id="contractor" value="Solar Power Solutions Philippines" placeholder="Solar Power Solutions Philippines" onfocus="autoClear(this)" oninput="calculate()">
             </div>
             <div class="form-group">
                 <label>Prepared By *</label>
-                <input type="text" id="prepBy" value="Romil Daño" oninput="calculate()">
+                <input type="text" id="prepBy" value="Romil Daño" placeholder="Romil Daño" onfocus="autoClear(this)" oninput="calculate()">
             </div>
         </div>
 
@@ -492,6 +492,15 @@
         'Industrial':  { 'Grid-tie': 35000, 'Hybrid': 55000, 'Off-grid': 78000, eff: 0.80 }
     };
 
+    // Auto-clear input on click / focus
+    function autoClear(inputElement) {
+        if (!inputElement.dataset.cleared) {
+            inputElement.value = '';
+            inputElement.dataset.cleared = 'true';
+            calculate();
+        }
+    }
+
     function calculate() {
         const client = document.getElementById('clientName').value || 'N/A';
         const contractor = document.getElementById('contractor').value || 'N/A';
@@ -513,14 +522,14 @@
         let reqKwp = dailyKwh / (psh * eff);
         reqKwp = Math.ceil(reqKwp * 10) / 10;
 
-        if(reqKwp <= 0) reqKwp = 1;
+        if(reqKwp <= 0) reqKwp = 0;
 
-        const panelCount = Math.ceil((reqKwp * 1000) / panelWp);
+        const panelCount = reqKwp > 0 ? Math.ceil((reqKwp * 1000) / panelWp) : 0;
         const actualKwp = (panelCount * panelWp) / 1000;
 
         const panelsPerString = Math.min(panelCount, 10);
-        const strings = Math.ceil(panelCount / panelsPerString);
-        const arrayConfig = `${panelsPerString}S × ${strings}P`;
+        const strings = panelCount > 0 ? Math.ceil(panelCount / panelsPerString) : 0;
+        const arrayConfig = panelCount > 0 ? `${panelsPerString}S × ${strings}P` : '--';
 
         const invCapacity = Math.ceil(actualKwp * 1.3 * 10) / 10;
         const is3Phase = scale !== 'Residential';
@@ -641,7 +650,6 @@
         }
     }
 
-    // Direct and Verified Theme Switcher Function
     function toggleTheme() {
         const isDark = document.body.classList.toggle('dark-mode');
         const themeBtn = document.getElementById('theme-btn');
@@ -666,11 +674,15 @@
         if (saved) {
             const data = JSON.parse(saved);
             Object.keys(data).forEach(id => {
-                if(document.getElementById(id)) document.getElementById(id).value = data[id];
+                const el = document.getElementById(id);
+                if(el && data[id] !== undefined) {
+                    el.value = data[id];
+                    // Tag as cleared so saved data won't accidentally clear on click
+                    el.dataset.cleared = 'true';
+                }
             });
         }
         
-        // Restore saved Theme
         const savedTheme = localStorage.getItem('solar_theme');
         if(savedTheme === 'dark') {
             document.body.classList.add('dark-mode');
