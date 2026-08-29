@@ -315,7 +315,7 @@
       <div class="card-header">
         <div>
           <h2 class="card-title">🌤️ Philippines Weather Dashboard</h2>
-          <p class="card-subtitle">Real-time weather across major cities (Auto-refreshes every 10 min)</p>
+          <p class="card-subtitle">Real-time weather across major cities (Auto-refreshes every 1 min)</p>
         </div>
       </div>
       <div id="weatherContainer" class="grid grid-2">
@@ -632,10 +632,10 @@
         this.setupWeather();
         this.setupMedia();
 
-        // 🔄 Automatic Weather Refresh bawat 10 minuto (600,000 milliseconds)
+        // 🔄 Automatic Weather Refresh bawat 1 minuto (60,000 milliseconds)
         setInterval(() => {
           this.setupWeather();
-        }, 600000);
+        }, 60000);
       }
 
       setupDateTime() {
