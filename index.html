@@ -281,7 +281,7 @@
           <span class="credit-badge credit-phivolcs">Credit: PHIVOLCS</span>
         </div>
         
-        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div style="display:flex; justify-between; align-items: center; margin-bottom: 1rem;">
           <button class="btn" id="phivolcsRefresh">🔄 Refresh now</button>
           <span id="phivolcsStatus" class="lotto-small" style="color: var(--accent-amber);"></span>
         </div>
@@ -305,7 +305,7 @@
           <span class="credit-badge credit-pcso">Credit: PCSO</span>
         </div>
 
-        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div style="display:flex; justify-between; align-items: center; margin-bottom: 1rem;">
           <button class="btn" id="manualRefresh">🔄 Refresh now</button>
           <span id="lottoStatus" class="lotto-small" style="color: var(--accent-emerald);"></span>
         </div>
@@ -605,7 +605,7 @@
             return `
               <div class="widget">
                 <div style="color: ${city.color}; font-weight:700; font-size:1.1rem;">${city.name}</div>
-                <div class="widget-content" style="display:flex; justify-between; align-items:center; margin-top:0.5rem;">
+                <div class="widget-content" style="display:flex; justify-content: space-between; align-items:center; margin-top:0.5rem;">
                   <div>
                     <div style="font-size: 1.8rem; font-weight: 800;">${data.main.temp.toFixed(1)}°C</div>
                     <div style="text-transform: capitalize; color: var(--text-secondary); font-size: 0.875rem;">${data.weather[0].description}</div>
@@ -809,22 +809,6 @@
         this.startAutoRefresh();
       }
 
-      calculateDirection(lat, long) {
-        const refLat = 14.5995;
-        const refLong = 120.9842;
-        const dLat = (lat - refLat) * Math.PI / 180;
-        const dLong = (long - refLong) * Math.PI / 180;
-        const y = Math.sin(dLong) * Math.cos(lat * Math.PI / 180);
-        const x = Math.cos(refLat * Math.PI / 180) * Math.sin(lat * Math.PI / 180) -
-                  Math.sin(refLat * Math.PI / 180) * Math.cos(lat * Math.PI / 180) * Math.cos(dLong);
-        const bearing = Math.atan2(y, x) * 180 / Math.PI;
-        const normalizedBearing = (bearing + 360) % 360;
-        const deg = Math.round(normalizedBearing);
-        const ns = deg > 180 ? 'S' : 'N';
-        const ew = (deg > 90 && deg < 270) ? 'W' : 'E';
-        return `${ns} ${deg}° ${ew}`;
-      }
-
       async fetchData(attempt = 1) {
         this.setStatus("Fetching…");
         this.hideError();
@@ -860,25 +844,8 @@
       parseAndProcessData(csvText) {
         let parsed = this.parseCSV(csvText).slice(0, this.maxRows + 1);
         if (parsed.length > 0) {
-          parsed[0] = parsed[0].map(h => h.replace(/\s*\([^)]*\)/g, ''));
-          const headers = parsed[0];
-          const latIndex = headers.indexOf('Latitude');
-          const longIndex = headers.indexOf('Longitude');
-          const depthIndex = headers.indexOf('Depth');
-          const locIndex = headers.indexOf('Location');
-          if (latIndex !== -1 && longIndex !== -1 && depthIndex !== -1 && locIndex !== -1) {
-            parsed.slice(1).forEach(row => {
-              const lat = parseFloat(row[latIndex]);
-              const long = parseFloat(row[longIndex]);
-              const depth = row[depthIndex] || '000';
-              const loc = row[locIndex] || 'Unknown';
-              const direction = this.calculateDirection(lat, long);
-              row[locIndex] = `${depth.toString().padStart(3, '0')} km ${direction} of ${loc}`;
-            });
-          }
-          const columnsToHide = ['Latitude', 'Longitude', 'Depth'];
-          const indicesToHide = headers.map((h, i) => columnsToHide.includes(h) ? i : -1).filter(i => i !== -1);
-          parsed = parsed.map(row => row.filter((_, i) => !indicesToHide.includes(i)));
+          // Clean headers
+          parsed[0] = parsed[0].map(h => h.replace(/\s*\([^)]*\)/g, '').trim());
         }
         return parsed;
       }
@@ -895,13 +862,13 @@
             if (char === '"') {
               inQuotes = !inQuotes;
             } else if (char === ',' && !inQuotes) {
-              row.push(current.replace(/^"|"$/g, ''));
+              row.push(current.replace(/^"|"$/g, '').trim());
               current = '';
             } else {
               current += char;
             }
           }
-          row.push(current.replace(/^"|"$/g, ''));
+          row.push(current.replace(/^"|"$/g, '').trim());
           rows.push(row);
         }
         return rows;
@@ -913,29 +880,35 @@
           return;
         }
 
-        const headers = data[0];
+        const rawHeaders = data[0];
         const rows = data.slice(1);
         this.container.innerHTML = "";
+
+        // Filter and reorder desired fields cleanly
+        const targetFields = ["Date-Time", "Magnitude", "Location"];
 
         rows.forEach(row => {
           const cardEl = document.createElement("div");
           cardEl.className = "eq-card-single";
 
-          headers.forEach((h, i) => {
-            const rowEl = document.createElement("div");
-            rowEl.className = "eq-row";
+          targetFields.forEach(field => {
+            const index = rawHeaders.findIndex(h => h.toLowerCase() === field.toLowerCase());
+            if (index !== -1) {
+              const rowEl = document.createElement("div");
+              rowEl.className = "eq-row";
 
-            const labelEl = document.createElement("span");
-            labelEl.className = "eq-label";
-            labelEl.textContent = h;
+              const labelEl = document.createElement("span");
+              labelEl.className = "eq-label";
+              labelEl.textContent = field;
 
-            const valEl = document.createElement("span");
-            valEl.className = "eq-value";
-            valEl.textContent = row[i] || '-';
+              const valEl = document.createElement("span");
+              valEl.className = "eq-value";
+              valEl.textContent = row[index] || '-';
 
-            rowEl.appendChild(labelEl);
-            rowEl.appendChild(valEl);
-            cardEl.appendChild(rowEl);
+              rowEl.appendChild(labelEl);
+              rowEl.appendChild(valEl);
+              cardEl.appendChild(rowEl);
+            }
           });
 
           this.container.appendChild(cardEl);
