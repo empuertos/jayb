@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Steve's Professional Live Hub - Unified dashboard for weather, seismic activity, lotto results, and live streaming">
-  <meta name="keywords" content="live weather, Philippines, streaming, dashboard, PHIVOLCS, PCSO lotto">
+  <meta name="description" content="Steve's Professional Live Hub - Unified dashboard for weather and streaming">
+  <meta name="keywords" content="live weather, Philippines, streaming, dashboard, PHIVOLCS, PCSO">
   <meta name="author" content="Steve">
   <meta name="theme-color" content="#0f172a">
   
@@ -15,42 +15,39 @@
   <!-- HLS Library for Global IPTV Player -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
-  <!-- Modern Vibrant CSS Framework -->
+  <!-- Modern Colorful CSS Framework -->
   <style>
     :root {
-      /* Vibrant Color Palette */
-      --bg-dark: #0f172a;
-      --bg-card: rgba(30, 41, 59, 0.7);
+      /* Dark Vibrant Palette */
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.12);
+      
       --accent-cyan: #06b6d4;
       --accent-pink: #ec4899;
-      --accent-purple: #8b5cf6;
-      --accent-amber: #f59e0b;
+      --accent-purple: #a855f7;
       --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
       
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --border-glow: rgba(255, 255, 255, 0.12);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
       
-      --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
-      --font-mono: 'Fira Code', 'Consolas', monospace;
+      --font-primary: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --font-mono: 'Consolas', 'Fira Code', monospace;
       
       --radius-sm: 0.5rem;
-      --radius-md: 0.75rem;
+      --radius-md: 0.875rem;
       --radius-lg: 1.25rem;
-      
-      --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body { 
       font-family: var(--font-primary); 
-      background: var(--bg-dark); 
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%);
+      background: var(--bg-gradient); 
       background-attachment: fixed;
-      color: var(--text-main); 
+      color: var(--text-primary); 
       line-height: 1.6; 
       overflow-x: hidden; 
       min-height: 100vh;
@@ -58,12 +55,13 @@
 
     .header {
       background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(16px);
+      backdrop-filter: blur(20px);
       padding: 1.5rem 1rem;
       position: sticky;
       top: 0;
       z-index: 1000;
-      border-bottom: 1px solid var(--border-glow);
+      border-bottom: 1px solid var(--card-border);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
     .header h1 {
       background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
@@ -72,7 +70,7 @@
       font-size: 2.25rem;
       font-weight: 800;
       text-align: center;
-      letter-spacing: -0.025em;
+      letter-spacing: -0.02em;
     }
 
     .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
@@ -80,119 +78,148 @@
     .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 
     .card {
-      background: var(--bg-card);
+      background: var(--card-bg);
       border-radius: var(--radius-lg);
       padding: 1.5rem;
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--border-glow);
       box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-      transition: transform var(--transition-normal), border-color var(--transition-normal);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      transition: var(--transition);
       margin-bottom: 1.5rem;
     }
     .card:hover { 
-      transform: translateY(-3px); 
+      transform: translateY(-4px); 
       border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
     }
     
-    .card-title { 
-      font-size: 1.35rem; 
-      font-weight: 700;
-      color: var(--text-main); 
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    .card-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: flex-start; 
+      flex-wrap: wrap; 
+      gap: 0.5rem; 
+      margin-bottom: 1.25rem; 
     }
-    .card-subtitle { color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem; }
+    .card-title { font-size: 1.4rem; color: var(--text-primary); font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+    .card-subtitle { color: var(--text-secondary); font-size: 0.875rem; }
 
-    /* Source Credits */
-    .credit-tag {
+    /* Credit Badges */
+    .credit-badge {
       font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.2rem 0.5rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
       border-radius: 0.375rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
-    .credit-phivolcs { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
-    .credit-pcso { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .credit-phivolcs { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.4); }
+    .credit-pcso { background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.4); }
 
     .widget { 
       padding: 1.25rem; 
       border-radius: var(--radius-md); 
       background: rgba(15, 23, 42, 0.6); 
-      border: 1px solid var(--border-glow);
+      border: 1px solid var(--card-border);
     }
     
+    .form-group { margin-bottom: 1rem; }
     .form-select, .form-input {
       width: 100%;
       padding: 0.75rem 1rem;
       background: rgba(15, 23, 42, 0.8);
-      border: 1px solid var(--border-glow);
+      border: 1px solid var(--card-border);
       border-radius: var(--radius-sm);
-      color: var(--text-main);
+      color: var(--text-primary);
       font-size: 0.95rem;
       outline: none;
-      transition: border-color var(--transition-normal);
+      transition: var(--transition);
     }
-    .form-select:focus, .form-input:focus { border-color: var(--accent-cyan); }
+    .form-select:focus, .form-input:focus { border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2); }
 
     .btn {
-      background: linear-gradient(135deg, var(--accent-cyan), #0284c7);
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
       color: white;
       font-weight: 600;
       border: none;
-      padding: 0.6rem 1.2rem;
+      padding: 0.6rem 1.25rem;
       border-radius: var(--radius-sm);
       cursor: pointer;
       font-size: 0.875rem;
-      transition: opacity var(--transition-normal);
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-    .btn:hover { opacity: 0.9; }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-    .youtube-player { width: 100%; aspect-ratio: 16 / 9; border: none; border-radius: var(--radius-sm); }
+    .youtube-player { width: 100%; aspect-ratio: 16 / 9; border: none; border-radius: var(--radius-md); }
 
     .security-section {
       font-family: var(--font-mono);
       font-size: 0.85rem;
       background: rgba(0, 0, 0, 0.4);
-      padding: 1rem;
+      padding: 1.25rem;
       border-radius: var(--radius-sm);
       word-break: break-all;
-      border-left: 3px solid var(--accent-pink);
+      border-left: 4px solid var(--accent-pink);
     }
 
-    /* Tables */
+    /* Modern Responsive Tables */
+    .lotto-card { width: 100%; }
     .lotto-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 1rem; }
-    .lotto-th, .lotto-td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border-glow); }
-    .lotto-th { background: rgba(15, 23, 42, 0.8); color: var(--accent-cyan); font-weight: 600; }
+    .lotto-th, .lotto-td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--card-border); }
+    .lotto-th { background: rgba(15, 23, 42, 0.9); color: var(--accent-cyan); font-weight: 600; }
     .lotto-tr:hover { background: rgba(255, 255, 255, 0.03); }
+    .lotto-small { font-size: 0.75rem; color: var(--text-secondary); }
+    .lotto-error { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.75rem 1rem; border-radius: var(--radius-sm); color: #fca5a5; margin-top: 0.5rem; font-size: 0.875rem; }
 
-    .iptv-player-box { width: 100%; background: #000; border-radius: var(--radius-md); overflow: hidden; margin-top: 1rem; }
+    /* IPTV Player */
+    .iptv-controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+    .iptv-player-box { width: 100%; background: #000; border-radius: var(--radius-md); overflow: hidden; }
     .iptv-video { width: 100%; aspect-ratio: 16/9; display: block; }
-    
-    .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; }
-    .link-card { 
-      background: rgba(15, 23, 42, 0.5); 
-      padding: 0.75rem; 
-      border-radius: var(--radius-sm); 
-      border: 1px solid var(--border-glow);
-      text-decoration: none;
-      color: var(--text-main);
-      font-size: 0.875rem;
-      transition: all var(--transition-normal);
-      display: block;
-      text-align: center;
-    }
-    .link-card:hover { background: var(--accent-purple); border-color: var(--accent-pink); transform: translateY(-2px); }
+    .iptv-status { margin-top: 10px; font-size: 0.875rem; color: var(--accent-emerald); text-align: center; min-height: 20px; }
 
-    .footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.875rem; }
+    /* Entertainment Links Grid */
+    .link-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; list-style: none; }
+    .link-list a { 
+      color: var(--text-primary); 
+      text-decoration: none; 
+      padding: 0.75rem 1rem; 
+      display: block; 
+      border-radius: var(--radius-sm); 
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--card-border);
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: var(--transition); 
+    }
+    .link-list a:hover { 
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(168, 85, 247, 0.2));
+      border-color: var(--accent-cyan); 
+      transform: translateY(-2px); 
+      color: #fff;
+    }
+
+    .loading { display: inline-block; position: relative; width: 18px; height: 18px; vertical-align: middle; }
+    .loading::after {
+      content: ''; position: absolute; width: 18px; height: 18px;
+      border: 2px solid var(--card-border); border-top: 2px solid var(--accent-cyan);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .footer { text-align: center; padding: 2.5rem 1rem; color: var(--text-secondary); font-size: 0.875rem; border-top: 1px solid var(--card-border); margin-top: 2rem; }
 
     @media (max-width: 768px) {
       .header h1 { font-size: 1.75rem; }
-      .responsive-table standard, .responsive-table thead, .responsive-table tbody, .responsive-table th, .responsive-table td, .responsive-table tr { display: block; }
+      .container { padding: 1rem; }
+      .card { padding: 1rem; }
+      .responsive-table, .responsive-table thead, .responsive-table tbody, .responsive-table th, .responsive-table td, .responsive-table tr { display: block; }
       .responsive-table thead tr { position: absolute; top: -9999px; left: -9999px; }
-      .responsive-table tr { margin-bottom: 1rem; border: 1px solid var(--border-glow); border-radius: var(--radius-sm); padding: 0.5rem; }
-      .responsive-table td { border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 0.5rem; text-align: right; }
+      .responsive-table tr { margin-bottom: 1rem; border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 0.5rem; background: rgba(15, 23, 42, 0.4); }
+      .responsive-table td { border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 0.5rem; text-align: right; word-wrap: break-word; }
       .responsive-table td:before { content: attr(data-label); float: left; font-weight: 600; color: var(--accent-cyan); }
     }
   </style>
@@ -206,178 +233,239 @@
     <!-- Date/Time Widget -->
     <section class="card">
       <div class="widget" style="text-align: center;">
-        <div style="color: var(--text-muted); font-size: 0.9rem;">Philippines Standard Time (PST)</div>
+        <div style="color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;">Philippines Standard Time (PST)</div>
         <div id="date" style="font-size: 1.1rem; margin-top: 0.25rem;">Loading date...</div>
-        <div id="ph-time" style="font-size: 2.5rem; font-weight: 800; color: var(--accent-cyan); margin-top: 0.25rem;">Loading time...</div>
+        <div id="ph-time" style="font-size: 2.5rem; font-weight: 800; color: var(--accent-cyan); letter-spacing: 0.02em;">Loading time...</div>
       </div>
     </section>
 
     <!-- Weather Dashboard -->
     <section class="card">
-      <div style="margin-bottom: 1rem;">
-        <h2 class="card-title">🌤️ Weather Dashboard</h2>
-        <p class="card-subtitle">Real-time weather across major Philippine cities</p>
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">🌤️ Philippines Weather Dashboard</h2>
+          <p class="card-subtitle">Real-time weather across major cities</p>
+        </div>
       </div>
       <div id="weatherContainer" class="grid grid-2">
-        <div class="widget">Loading weather data...</div>
+        <div class="widget"><span class="loading"></span> Loading weather data...</div>
       </div>
     </section>
 
     <!-- PHIVOLCS Latest Earthquakes -->
     <section class="card">
-      <div style="display:flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
-        <div>
-          <h2 class="card-title">🌋 Latest Earthquakes</h2>
-          <p class="card-subtitle">Real-time seismic data feed</p>
+      <div class="lotto-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🌋 PHIVOLCS Latest Earthquakes</h2>
+            <div class="lotto-small">Refreshes automatically every 10 seconds.</div>
+          </div>
+          <span class="credit-badge credit-phivolcs">Credit: PHIVOLCS</span>
         </div>
-        <span class="credit-tag credit-phivolcs">Data Credit: PHIVOLCS</span>
+        
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <button class="btn" id="phivolcsRefresh">🔄 Refresh now</button>
+          <span id="phivolcsStatus" class="lotto-small" style="color: var(--accent-amber);"></span>
+        </div>
+
+        <div id="phivolcsContainer">
+          <div class="widget"><span class="loading" id="phivolcsLoading"></span> Loading earthquake data…</div>
+        </div>
+        <div class="lotto-small" id="phivolcsUpdated" style="margin-top: 0.5rem;"></div>
+        <div id="phivolcsError" class="lotto-error" style="display:none;"></div>
       </div>
-      
-      <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <button class="btn" id="phivolcsRefresh">Refresh Data</button>
-        <span id="phivolcsStatus" style="font-size: 0.8rem; color: var(--accent-amber);"></span>
-      </div>
-      
-      <div id="phivolcsContainer">
-        <div class="widget">Loading PHIVOLCS data…</div>
-      </div>
-      <div id="phivolcsUpdated" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;"></div>
-      <div id="phivolcsError" style="display:none; color: var(--accent-pink); margin-top: 0.5rem;"></div>
     </section>
 
     <!-- 3D Lotto Results -->
     <section class="card">
-      <div style="display:flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
-        <div>
-          <h2 class="card-title">🎲 3D Lotto Results</h2>
-          <p class="card-subtitle">Live draw result spreadsheet updates</p>
+      <div class="lotto-card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🎲 3D Lotto Results</h2>
+            <div class="lotto-small">Automatically refreshed every 30 seconds.</div>
+          </div>
+          <span class="credit-badge credit-pcso">Credit: PCSO</span>
         </div>
-        <span class="credit-tag credit-pcso">Data Credit: PCSO</span>
-      </div>
 
-      <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <button class="btn" id="manualRefresh">Refresh Results</button>
-        <span id="lottoStatus" style="font-size: 0.8rem; color: var(--accent-emerald);"></span>
-      </div>
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <button class="btn" id="manualRefresh">🔄 Refresh now</button>
+          <span id="lottoStatus" class="lotto-small" style="color: var(--accent-emerald);"></span>
+        </div>
 
-      <div id="tableContainer">
-        <div class="widget" id="loadingText">Loading PCSO Lotto results…</div>
+        <div id="tableContainer">
+          <div class="widget"><span class="loading" id="loadingText"></span> Loading data…</div>
+        </div>
+        <div class="lotto-small" id="lastUpdated" style="margin-top: 0.5rem;"></div>
+        <div id="errorMsg" class="lotto-error" style="display:none;"></div>
       </div>
-      <div id="lastUpdated" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;"></div>
-      <div id="errorMsg" style="display:none; color: var(--accent-pink); margin-top: 0.5rem;"></div>
     </section>
 
     <!-- Global IPTV Player -->
     <section class="card">
-      <div style="margin-bottom: 1rem;">
-        <h2 class="card-title">📺 Global IPTV Player</h2>
-        <p class="card-subtitle">Stream live international television networks</p>
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">📺 Global IPTV Player</h2>
+          <p class="card-subtitle">Watch international live channels</p>
+        </div>
       </div>
 
-      <div class="grid grid-2" style="margin-bottom: 1rem;">
-        <select id="countrySelect" class="form-select" onchange="loadChannels()">
+      <div class="iptv-controls">
+        <select id="countrySelect" class="form-select" style="flex: 1; min-width: 180px;" onchange="loadChannels()">
           <option value="ph" selected>🇵🇭 Philippines</option>
           <option value="us">🇺🇸 United States</option>
           <option value="gb">🇬🇧 United Kingdom</option>
           <option value="jp">🇯🇵 Japan</option>
         </select>
 
-        <select id="iptvChannelSelect" class="form-select" onchange="playChannel()">
+        <select id="iptvChannelSelect" class="form-select" style="flex: 1; min-width: 180px;" onchange="playChannel()">
           <option value="">-- Select Channel --</option>
         </select>
+
+        <button class="btn" onclick="loadChannels()">🔄 Refresh</button>
       </div>
 
       <div class="iptv-player-box">
         <video id="iptvVideo" class="iptv-video" controls autoplay playsinline muted></video>
       </div>
 
-      <div id="iptvStatus" style="font-size: 0.85rem; color: var(--accent-cyan); text-align: center; margin-top: 0.5rem;">Idle</div>
+      <div id="iptvStatus" class="iptv-status">Loading channels...</div>
     </section>
 
     <!-- Live Media Hub -->
     <section class="card">
-      <div style="margin-bottom: 1rem;">
-        <h2 class="card-title">📡 Live Media & Broadcast Hub</h2>
-        <p class="card-subtitle">YouTube streaming feeds & direct radio broadcasting</p>
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">📡 Live Media Hub</h2>
+          <p class="card-subtitle">YouTube channels and audio streaming</p>
+        </div>
+      </div>
+      
+      <!-- Complete Original Channels List -->
+      <div class="form-group">
+        <select class="form-select" id="channelSelect">
+          <option value="">-- Select Channel --</option>
+          <option value="UCnf8Ejd3y2RboWNcOqHS24A">ATTY. RUPHIL F BAÑOC</option>
+          <option value="UCPTddoHsUattFCXD8u4p7Eg">ATTY. JURIL BROKA PATIÑO</option>
+          <option value="UC1S4Kg8_N5-1Rp6miCKEpsQ">XFM Cebu 88.3 | Official Channel</option>
+          <option value="UCstEtN0pgOmCf02EdXsGChw">KAPAMILYA CHANNEL</option>
+          <option value="UCKL5hAuzgFQsyrsQKgU0Qng">GMA NETWORK</option>
+          <option value="UCiFx0kZFjR29u0uJxTSq5MQ">TV5 Philippines</option>
+          <option value="UCJCUbMaY593_4SN1QPG7NFQ">PTV Philippines</option>
+          <option value="UCIxIecbM8okv6hI7iqGJm2A">RMN NETWORK</option>
+          <option value="UCpOm2kv1upnIFoOT7rSp6hg">PCSO GOV</option>
+          <option value="UCupvZG-5ko_eiXAupbDfxWw">CNN</option>
+          <option value="UCDgW7mEUuVJuU-yRyZslrbw">ALL TV2</option>
+          <option value="UC7941bBpZFenu_58hHnBkGQ">CCTN 47 OFFICIAL</option>
+          <option value="UCeY0bbntWzzVIaj2z3QigXg">NBC News</option>
+          <option value="UCYFgnkDYr-G5L_iy6DZdvSA">Super Radyo DZBB 594khz</option>
+          <option value="UCs_VNu-FQ0WcJnD4QkmIL5w">DZMM Teleradyo</option>
+          <option value="UCnYlMfpbCIg54cEyUiE42vw">NET25 News and Information</option>
+          <option value="UCi-D5IxBR2HahDyfJfqy7jA">One PH</option>
+          <option value="UCkw9o4FxDfJJiEHpq5JzDrQ">DYTR Bohol TV</option>
+          <option value="UCVVw9u0pZ3nnWxx7WyE8YkQ">Bombo Radyo Philippines</option>
+          <option value="UCetMicrNjXa_Pev2pjl-Vjw">Leo Lastimosa</option>
+        </select>
       </div>
 
-      <select class="form-select" id="channelSelect" style="margin-bottom: 1rem;">
-        <option value="">-- Select YouTube Channel --</option>
-        <option value="UCnf8Ejd3y2RboWNcOqHS24A">ATTY. RUPHIL F BAÑOC</option>
-        <option value="UCPTddoHsUattFCXD8u4p7Eg">ATTY. JURIL BROKA PATIÑO</option>
-        <option value="UC1S4Kg8_N5-1Rp6miCKEpsQ">XFM Cebu 88.3</option>
-        <option value="UCstEtN0pgOmCf02EdXsGChw">KAPAMILYA CHANNEL</option>
-        <option value="UCKL5hAuzgFQsyrsQKgU0Qng">GMA NETWORK</option>
-        <option value="UCiFx0kZFjR29u0uJxTSq5MQ">TV5 Philippines</option>
-        <option value="UCpOm2kv1upnIFoOT7rSp6hg">PCSO GOV</option>
-      </select>
-
-      <div id="playerContainer" style="display: none; margin-bottom: 1.5rem;">
+      <div id="playerContainer" style="display: none; margin-top: 1rem;">
         <iframe class="youtube-player" id="livePlayer" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
       </div>
       
-      <div class="widget">
-        <h3 style="font-size: 1rem; color: var(--accent-pink); margin-bottom: 0.5rem;">🎵 Live Stream: RMN Cebu</h3>
-        <audio id="audioPlayer" controls style="width: 100%;">
+      <!-- Audio Streaming Section -->
+      <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--card-border);">
+        <h3 style="color: var(--accent-pink); margin-bottom: 0.5rem; font-size: 1.1rem;">🎵 Live Audio Stream - RMN Cebu</h3>
+        <audio id="audioPlayer" controls style="width: 100%; margin-top: 0.5rem;">
           <source src="https://audiostreaming-worker.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/" type="audio/mpeg">
+          Your browser does not support the audio element.
         </audio>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
-          <span id="streamStatus">Ready to play</span>
-          <button id="refreshAudio" class="btn" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">Reconnect</button>
+        <div id="audioStatus" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+          <span id="streamStatus">Connecting to RMN Cebu...</span>
+          <span id="volumeInfo" style="margin-left: 1rem;"></span>
+        </div>
+        <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem; align-items: center;">
+          <button id="refreshAudio" class="btn" style="font-size: 0.8rem; padding: 0.3rem 0.7rem;">Refresh Stream</button>
+          <span class="loading" id="audioLoading" style="display: none;"></span>
         </div>
       </div>
     </section>
 
-    <!-- Entertainment Portal -->
+    <!-- Entertainment Portal (All 24 Links Restored) -->
     <section class="card">
-      <div style="margin-bottom: 1rem;">
-        <h2 class="card-title">🎬 Entertainment Portal</h2>
-        <p class="card-subtitle">Quick external streaming access</p>
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">🎬 Entertainment Portal</h2>
+          <p class="card-subtitle">Premium streaming services</p>
+        </div>
       </div>
-      <div class="link-grid">
-        <a class="link-card" href="https://yarrlist.net" target="_blank" rel="noopener">Yarrlist</a>
-        <a class="link-card" href="https://streamovieflix.netlify.app/" target="_blank" rel="noopener">Streamovieflix</a>
-        <a class="link-card" href="http://vid-us.vercel.app" target="_blank" rel="noopener">NeroFlix</a>
-        <a class="link-card" href="https://kisskh.co" target="_blank" rel="noopener">Kisskh</a>
-        <a class="link-card" href="https://www.lookmovie2.to" target="_blank" rel="noopener">LookMovie</a>
-        <a class="link-card" href="https://fluxtv.cc/" target="_blank" rel="noopener">Fluxtv</a>
-        <a class="link-card" href="https://braflix.watch" target="_blank" rel="noopener">Braflix</a>
-        <a class="link-card" href="https://pinoymoviepedia.ru/" target="_blank" rel="noopener">Pinoymoviepedia</a>
-      </div>
+      <ul class="link-list">
+        <li><a href="https://yarrlist.net" target="_blank" rel="noopener noreferrer">Yarrlist</a></li>
+        <li><a href="https://streamovieflix.netlify.app/" target="_blank" rel="noopener noreferrer">Streamovieflix</a></li>
+        <li><a href="http://vid-us.vercel.app" target="_blank" rel="noopener noreferrer">NeroFlix</a></li>
+        <li><a href="https://kisskh.co" target="_blank" rel="noopener noreferrer">Kisskh</a></li>
+        <li><a href="https://itcaretv.top" target="_blank" rel="noopener noreferrer">ItcaretvTop</a></li>
+        <li><a href="https://www.lookmovie2.to" target="_blank" rel="noopener noreferrer">LookMovie Premium</a></li>
+        <li><a href="https://ww7.123moviesfree.net/home" target="_blank" rel="noopener noreferrer">123Movies Free</a></li>
+        <li><a href="https://fluxtv.cc/" target="_blank" rel="noopener noreferrer">Fluxtv</a></li>
+        <li><a href="https://film-haven.vercel.app" target="_blank" rel="noopener noreferrer">Film Haven</a></li>
+        <li><a href="https://stream4fun.net/" target="_blank" rel="noopener noreferrer">Stream4fun</a></li>
+        <li><a href="https://onlyflix.to/" target="_blank" rel="noopener noreferrer">OnlyflixTo</a></li>
+        <li><a href="https://www.1flex.org/" target="_blank" rel="noopener noreferrer">1FlexOrg</a></li>
+        <li><a href="https://www.cineby.at/" target="_blank" rel="noopener noreferrer">CinevibeTo</a></li>
+        <li><a href="https://heartivetv.pages.dev/" target="_blank" rel="noopener noreferrer">Heartivetv</a></li>
+        <li><a href="https://braflix.watch" target="_blank" rel="noopener noreferrer">Braflix</a></li>
+        <li><a href="https://watchluna.com/" target="_blank" rel="noopener noreferrer">WatchLuna</a></li>
+        <li><a href="https://www.cineby.gd/" target="_blank" rel="noopener noreferrer">Cineby</a></li>
+        <li><a href="https://zstream.mov/" target="_blank" rel="noopener noreferrer">ZstreamMov</a></li>
+        <li><a href="https://streamex.sh/" target="_blank" rel="noopener noreferrer">Streamex</a></li>
+        <li><a href="https://apexmovies.net/" target="_blank" rel="noopener noreferrer">Apexmovies</a></li>
+        <li><a href="https://anikoto.cz/home" target="_blank" rel="noopener noreferrer">Anikoto</a></li>
+        <li><a href="https://animesalt.top/" target="_blank" rel="noopener noreferrer">Animesalt</a></li>
+        <li><a href="https://www.wcoflix.tv/" target="_blank" rel="noopener noreferrer">Wcoflix-cartoon</a></li>
+        <li><a href="https://pinoymoviepedia.ru/" target="_blank" rel="noopener noreferrer">Pinoymoviepedia</a></li>
+      </ul>
     </section>
 
-    <!-- Security Tokens Section -->
+    <!-- Security Section -->
     <section class="card">
-      <h2 class="card-title" style="margin-bottom: 0.5rem;">🔒 Security Tokens</h2>
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">🔒 Security Access</h2>
+          <p class="card-subtitle">Encrypted access tokens</p>
+        </div>
+      </div>
       <div class="security-section">
         <p><strong>G1st:</strong> 85551540X61863676X32342190X26286952X24740530X46010457X45940327X12473689X06767958X77048925</p>
         <p style="margin-top: 0.5rem;"><strong>G2nd:</strong> 87930868X79693801X28198839X10787943X01642065X43405314X05831064X58539749X93700422X50207461</p>
+        <p style="margin-top: 0.5rem;"><strong>F-Sec:</strong> 24317591X41352780X53072337X66958056</p>
       </div>
     </section>
   </main>
 
   <footer class="footer">
     <p>&copy; 2026 Steve's Unified Live Hub. All rights reserved.</p>
-    <p style="margin-top: 0.25rem;">Data sources credited to PHIVOLCS (Seismic) and PCSO (Lotto) respectively.</p>
+    <p style="margin-top: 0.25rem;">Earthquake data provided by PHIVOLCS. Lotto results provided by PCSO.</p>
   </footer>
 
   <script>
-    /* IPTV Logic */
+    /* Global IPTV Player Script */
     const WORKER_BASE = 'https://iptv-proxy.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev';
     const iptvVideo = document.getElementById('iptvVideo');
     const iptvStatus = document.getElementById('iptvStatus');
     const countrySelect = document.getElementById('countrySelect');
     const iptvChannelSelect = document.getElementById('iptvChannelSelect');
     let hls = null;
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
 
     async function loadChannels() {
       const code = countrySelect.value;
-      iptvStatus.innerText = 'Fetching channel index...';
+      iptvStatus.innerText = `Fetching channels...`;
       iptvChannelSelect.innerHTML = '<option value="">-- Loading... --</option>';
 
       try {
         const res = await fetch(`${WORKER_BASE}/?mode=get_channels&country=${code}`);
         const channels = await res.json();
+
         iptvChannelSelect.innerHTML = '<option value="">-- Select Channel --</option>';
         channels.forEach(ch => {
           const opt = document.createElement('option');
@@ -385,27 +473,65 @@
           opt.innerText = ch.title;
           iptvChannelSelect.appendChild(opt);
         });
-        iptvStatus.innerText = 'Channels Loaded';
+
+        iptvStatus.innerText = `Channels Loaded!`;
       } catch (e) {
-        iptvStatus.innerText = 'Failed to load channels';
+        iptvStatus.innerText = `Error loading channels.`;
       }
     }
 
     function playChannel() {
       const streamId = iptvChannelSelect.value;
       if (!streamId) return;
-      const proxiedUrl = `${WORKER_BASE}/?id=${encodeURIComponent(streamId)}`;
-      iptvStatus.innerText = 'Connecting to stream...';
 
-      if (hls) hls.destroy();
+      retryCount = 0;
+      const proxiedUrl = `${WORKER_BASE}/?id=${encodeURIComponent(streamId)}`;
+      iptvStatus.innerText = 'Connecting...';
+
+      if (hls) {
+        hls.destroy();
+      }
 
       if (Hls.isSupported()) {
-        hls = new Hls();
+        hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+          maxBufferLength: 5,
+          manifestLoadingTimeOut: 8000,
+          fragLoadingTimeOut: 8000
+        });
+
         hls.loadSource(proxiedUrl);
         hls.attachMedia(iptvVideo);
+
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          iptvStatus.innerText = 'Playing';
-          iptvVideo.play().catch(() => {});
+          iptvStatus.innerText = 'Playing!';
+          iptvVideo.play().then(() => {
+            iptvVideo.muted = false;
+          }).catch(() => {
+            iptvVideo.play();
+          });
+        });
+
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          if (data.fatal) {
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+              if (retryCount < MAX_RETRIES) {
+                retryCount++;
+                iptvStatus.innerText = `Connection weak, retrying (${retryCount}/${MAX_RETRIES})...`;
+                hls.startLoad();
+              } else {
+                iptvStatus.innerText = '⚠️ Channel is offline or unavailable.';
+                hls.destroy();
+              }
+            } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+              iptvStatus.innerText = 'Recovering video...';
+              hls.recoverMediaError();
+            } else {
+              iptvStatus.innerText = '⚠️ Stream error or unsupported format.';
+              hls.destroy();
+            }
+          }
         });
       } else if (iptvVideo.canPlayType('application/vnd.apple.mpegurl')) {
         iptvVideo.src = proxiedUrl;
@@ -413,18 +539,21 @@
       }
     }
 
-    /* Core Hub Initialization */
+    /* Unified Application Controller */
     class UnifiedLiveHub {
       constructor() {
         this.config = {
           weatherWorkerURL: 'https://weather-worker.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/',
           cities: [
             { name: 'Manila', query: 'Manila,PH', color: 'var(--accent-pink)' },
-            { name: 'Talisay Cebu', query: 'Talisay,Cebu,PH', color: 'var(--accent-cyan)' },
+            { name: 'Talisay City Cebu', query: 'Talisay,Cebu,PH', color: 'var(--accent-cyan)' },
             { name: 'Cebu City', query: 'Cebu City,PH', color: 'var(--accent-emerald)' },
-            { name: 'Davao City', query: 'Davao City,PH', color: 'var(--accent-amber)' }
+            { name: 'Cagayan de Oro', query: 'Cagayan de Oro,PH', color: 'var(--accent-amber)' },
+            { name: 'Zamboanga', query: 'Zamboanga,PH', color: 'var(--accent-purple)' },
+            { name: 'Davao City', query: 'Davao City,PH', color: '#f97316' }
           ]
         };
+
         this.init();
       }
 
@@ -437,34 +566,44 @@
       setupDateTime() {
         const updateDateTime = () => {
           const now = new Date();
-          const dateOptions = { timeZone: 'Asia/Manila', year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' };
+          const dateOptions = { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' };
           const timeOptions = { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
           
           document.getElementById('date').textContent = new Intl.DateTimeFormat('en-US', dateOptions).format(now);
           document.getElementById('ph-time').textContent = new Intl.DateTimeFormat('en-US', timeOptions).format(now);
         };
+        
         updateDateTime();
         setInterval(updateDateTime, 1000);
       }
 
       async setupWeather() {
         const container = document.getElementById('weatherContainer');
+
         try {
-          const promises = this.config.cities.map(async (city) => {
-            const res = await fetch(`${this.config.weatherWorkerURL}?q=${encodeURIComponent(city.query)}`);
-            const data = await res.json();
+          const weatherPromises = this.config.cities.map(async (city) => {
+            const response = await fetch(`${this.config.weatherWorkerURL}?q=${encodeURIComponent(city.query)}`);
+            const data = await response.json();
+
             return `
               <div class="widget">
-                <div style="color: ${city.color}; font-weight:700;">${city.name}</div>
-                <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;">${data.main.temp.toFixed(1)}°C</div>
-                <div style="font-size: 0.85rem; color: var(--text-muted);">${data.weather[0].description}</div>
+                <div style="color: ${city.color}; font-weight:700; font-size:1.1rem;">${city.name}</div>
+                <div class="widget-content" style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
+                  <div>
+                    <div style="font-size: 1.8rem; font-weight: 800;">${data.main.temp.toFixed(1)}°C</div>
+                    <div style="text-transform: capitalize; color: var(--text-secondary); font-size: 0.875rem;">${data.weather[0].description}</div>
+                  </div>
+                  <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png"
+                       alt="${data.weather[0].description}" style="width: 50px; height: 50px;">
+                </div>
               </div>
             `;
           });
-          const html = await Promise.all(promises);
-          container.innerHTML = html.join('');
-        } catch (e) {
-          container.innerHTML = '<div class="widget">Weather unavailable</div>';
+
+          const weatherHTML = await Promise.all(weatherPromises);
+          container.innerHTML = weatherHTML.join('');
+        } catch (error) {
+          container.innerHTML = '<div class="widget">Failed to load weather data</div>';
         }
       }
 
@@ -473,4 +612,362 @@
         const player = document.getElementById('livePlayer');
         const container = document.getElementById('playerContainer');
         
-        select.addEventListener('ch
+        select.addEventListener('change', (e) => {
+          const channelId = e.target.value;
+          if (channelId) {
+            player.src = `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&mute=1&playsinline=1`;
+            container.style.display = 'block';
+          } else {
+            player.src = '';
+            container.style.display = 'none';
+          }
+        });
+
+        this.setupAudioStream();
+      }
+
+      setupAudioStream() {
+        const audioPlayer = document.getElementById('audioPlayer');
+        const streamStatus = document.getElementById('streamStatus');
+        const volumeInfo = document.getElementById('volumeInfo');
+        const refreshAudio = document.getElementById('refreshAudio');
+        const audioLoading = document.getElementById('audioLoading');
+
+        audioPlayer.addEventListener('loadstart', () => {
+          streamStatus.textContent = 'Loading RMN Cebu stream...';
+          audioLoading.style.display = 'inline-block';
+        });
+
+        audioPlayer.addEventListener('canplay', () => {
+          streamStatus.textContent = 'RMN Cebu - Ready to play';
+          audioLoading.style.display = 'none';
+        });
+
+        audioPlayer.addEventListener('playing', () => {
+          streamStatus.textContent = 'RMN Cebu - Now playing';
+          audioLoading.style.display = 'none';
+        });
+
+        audioPlayer.addEventListener('pause', () => {
+          streamStatus.textContent = 'RMN Cebu - Paused';
+        });
+
+        audioPlayer.addEventListener('ended', () => {
+          streamStatus.textContent = 'RMN Cebu - Stream ended';
+        });
+
+        audioPlayer.addEventListener('error', (e) => {
+          streamStatus.textContent = 'Error: Could not load stream';
+          audioLoading.style.display = 'none';
+        });
+
+        audioPlayer.addEventListener('volumechange', () => {
+          const volume = Math.round(audioPlayer.volume * 100);
+          volumeInfo.textContent = `Volume: ${volume}%`;
+        });
+
+        refreshAudio.addEventListener('click', () => {
+          streamStatus.textContent = 'Refreshing stream...';
+          audioLoading.style.display = 'inline-block';
+          
+          const currentTime = audioPlayer.currentTime;
+          const currentVolume = audioPlayer.volume;
+          const wasPaused = audioPlayer.paused;
+          
+          audioPlayer.src = audioPlayer.src;
+          audioPlayer.load();
+          
+          setTimeout(() => {
+            audioPlayer.currentTime = currentTime;
+            audioPlayer.volume = currentVolume;
+            if (!wasPaused) {
+              audioPlayer.play().catch(e => {
+                streamStatus.textContent = 'Click play to start listening';
+              });
+            }
+            audioLoading.style.display = 'none';
+          }, 100);
+        });
+      }
+    }
+
+    /* 3D Lotto Reader Functions */
+    const CSV_URL = "https://sheets-worker.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/";
+    const tableContainer = document.getElementById("tableContainer");
+    const errorMsg = document.getElementById("errorMsg");
+    const lastUpdated = document.getElementById("lastUpdated");
+    const lottoStatus = document.getElementById("lottoStatus");
+    const loadingText = document.getElementById("loadingText");
+    const manualRefresh = document.getElementById("manualRefresh");
+
+    function parseCSV(text) {
+      return text.trim().split("\n").map(r => r.split(",").map(c => c.replace(/^"|"$/g, "")));
+    }
+
+    function buildTable(data, container = tableContainer) {
+      if (!data || data.length === 0) {
+        container.innerHTML = "<div class='lotto-small'>No data available.</div>";
+        return;
+      }
+      const thead = data[0];
+      const bodyRows = data.slice(1);
+
+      const table = document.createElement("table");
+      table.className = "lotto-table responsive-table";
+      const trHead = document.createElement("tr");
+      thead.forEach(h => {
+        const th = document.createElement("th");
+        th.className = "lotto-th";
+        th.textContent = h;
+        trHead.appendChild(th);
+      });
+      const theadEl = document.createElement("thead");
+      theadEl.appendChild(trHead);
+      table.appendChild(theadEl);
+
+      const tbody = document.createElement("tbody");
+      bodyRows.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.className = "lotto-tr";
+        row.forEach((cell, index) => {
+          const td = document.createElement("td");
+          td.className = "lotto-td";
+          td.textContent = cell;
+          td.setAttribute('data-label', thead[index]);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+
+      container.innerHTML = "";
+      container.appendChild(table);
+    }
+
+    async function fetchAndRender() {
+      lottoStatus.textContent = "Fetching…";
+      errorMsg.style.display = "none";
+      if (loadingText) loadingText.style.display = "inline-block";
+      try {
+        const resp = await fetch(CSV_URL, { cache: "no-cache" });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const text = await resp.text();
+        const parsed = parseCSV(text);
+        buildTable(parsed);
+        const now = new Date();
+        lastUpdated.textContent = "Last updated: " + now.toLocaleString("en-US", { hour12: true });
+        lottoStatus.textContent = "";
+      } catch (err) {
+        errorMsg.textContent = "Failed to load spreadsheet: " + err.message;
+        errorMsg.style.display = "block";
+        lottoStatus.textContent = "Error";
+      } finally {
+        if (loadingText) loadingText.style.display = "none";
+      }
+    }
+
+    manualRefresh.addEventListener("click", fetchAndRender);
+
+    /* PHIVOLCS Manager Class */
+    class PhivolcsManager {
+      constructor() {
+        this.url = "https://phivolcs.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/";
+        this.container = document.getElementById("phivolcsContainer");
+        this.errorEl = document.getElementById("phivolcsError");
+        this.updatedEl = document.getElementById("phivolcsUpdated");
+        this.statusEl = document.getElementById("phivolcsStatus");
+        this.loadingEl = document.getElementById("phivolcsLoading");
+        this.refreshBtn = document.getElementById("phivolcsRefresh");
+        this.maxRows = 10;
+        this.refreshInterval = 10000;
+        this.retryAttempts = 3;
+        this.retryDelay = 2000;
+
+        this.init();
+      }
+
+      init() {
+        this.refreshBtn.addEventListener("click", () => this.fetchData());
+        this.fetchData();
+        this.startAutoRefresh();
+      }
+
+      calculateDirection(lat, long) {
+        const refLat = 14.5995;
+        const refLong = 120.9842;
+        const dLat = (lat - refLat) * Math.PI / 180;
+        const dLong = (long - refLong) * Math.PI / 180;
+        const y = Math.sin(dLong) * Math.cos(lat * Math.PI / 180);
+        const x = Math.cos(refLat * Math.PI / 180) * Math.sin(lat * Math.PI / 180) -
+                  Math.sin(refLat * Math.PI / 180) * Math.cos(lat * Math.PI / 180) * Math.cos(dLong);
+        const bearing = Math.atan2(y, x) * 180 / Math.PI;
+        const normalizedBearing = (bearing + 360) % 360;
+        const deg = Math.round(normalizedBearing);
+        const ns = deg > 180 ? 'S' : 'N';
+        const ew = (deg > 90 && deg < 270) ? 'W' : 'E';
+        return `${ns} ${deg}° ${ew}`;
+      }
+
+      async fetchData(attempt = 1) {
+        this.setStatus("Fetching…");
+        this.hideError();
+        this.showLoading();
+
+        try {
+          const response = await fetch(this.url, { cache: "no-cache" });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const text = await response.text();
+          const data = this.parseAndProcessData(text);
+          this.renderTable(data);
+          this.updateTimestamp();
+          this.setStatus("");
+          this.cacheData(data);
+        } catch (error) {
+          if (attempt < this.retryAttempts) {
+            this.setStatus(`Retrying... (${attempt}/${this.retryAttempts})`);
+            setTimeout(() => this.fetchData(attempt + 1), this.retryDelay);
+          } else {
+            this.showError("Failed to load PHIVOLCS data: " + error.message);
+            this.setStatus("Error");
+            const cached = this.getCachedData();
+            if (cached) {
+              this.renderTable(cached);
+              this.setStatus("Using cached data");
+            }
+          }
+        } finally {
+          this.hideLoading();
+        }
+      }
+
+      parseAndProcessData(csvText) {
+        let parsed = this.parseCSV(csvText).slice(0, this.maxRows + 1);
+        if (parsed.length > 0) {
+          parsed[0] = parsed[0].map(h => h.replace(/\s*\([^)]*\)/g, ''));
+          const headers = parsed[0];
+          const latIndex = headers.indexOf('Latitude');
+          const longIndex = headers.indexOf('Longitude');
+          const depthIndex = headers.indexOf('Depth');
+          const locIndex = headers.indexOf('Location');
+          if (latIndex !== -1 && longIndex !== -1 && depthIndex !== -1 && locIndex !== -1) {
+            parsed.slice(1).forEach(row => {
+              const lat = parseFloat(row[latIndex]);
+              const long = parseFloat(row[longIndex]);
+              const depth = row[depthIndex] || '000';
+              const loc = row[locIndex] || 'Unknown';
+              const direction = this.calculateDirection(lat, long);
+              row[locIndex] = `${depth.toString().padStart(3, '0')}km ${direction} of ${loc}`;
+            });
+          }
+          const columnsToHide = ['Latitude', 'Longitude', 'Depth'];
+          const indicesToHide = headers.map((h, i) => columnsToHide.includes(h) ? i : -1).filter(i => i !== -1);
+          parsed = parsed.map(row => row.filter((_, i) => !indicesToHide.includes(i)));
+        }
+        return parsed;
+      }
+
+      parseCSV(text) {
+        const rows = [];
+        const lines = text.trim().split("\n");
+        for (let line of lines) {
+          const row = [];
+          let current = '';
+          let inQuotes = false;
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+              inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+              row.push(current.replace(/^"|"$/g, ''));
+              current = '';
+            } else {
+              current += char;
+            }
+          }
+          row.push(current.replace(/^"|"$/g, ''));
+          rows.push(row);
+        }
+        return rows;
+      }
+
+      renderTable(data) {
+        if (!data || data.length === 0) {
+          this.container.innerHTML = "<div class='lotto-small'>No data available.</div>";
+          return;
+        }
+        const thead = data[0];
+        const bodyRows = data.slice(1);
+
+        const table = document.createElement("table");
+        table.className = "lotto-table responsive-table";
+
+        const theadEl = document.createElement("thead");
+        const trHead = document.createElement("tr");
+        thead.forEach(h => {
+          const th = document.createElement("th");
+          th.className = "lotto-th";
+          th.innerHTML = `<strong>${h}</strong>`;
+          trHead.appendChild(th);
+        });
+        theadEl.appendChild(trHead);
+        table.appendChild(theadEl);
+
+        const tbody = document.createElement("tbody");
+        bodyRows.forEach((row) => {
+          const tr = document.createElement("tr");
+          tr.className = "lotto-tr";
+          row.forEach((cell, index) => {
+            const td = document.createElement("td");
+            td.className = "lotto-td";
+            td.textContent = cell;
+            td.setAttribute('data-label', thead[index]);
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+
+        this.container.innerHTML = "";
+        this.container.appendChild(table);
+      }
+
+      updateTimestamp() {
+        const now = new Date();
+        this.updatedEl.textContent = "Last updated: " + now.toLocaleString("en-US", { hour12: true });
+      }
+
+      setStatus(text) { this.statusEl.textContent = text; }
+      showError(message) { this.errorEl.textContent = message; this.errorEl.style.display = "block"; }
+      hideError() { this.errorEl.style.display = "none"; }
+      showLoading() { if (this.loadingEl) this.loadingEl.style.display = "inline-block"; }
+      hideLoading() { if (this.loadingEl) this.loadingEl.style.display = "none"; }
+      startAutoRefresh() { this.interval = setInterval(() => this.fetchData(), this.refreshInterval); }
+
+      cacheData(data) {
+        try {
+          localStorage.setItem('phivolcs_cache', JSON.stringify({ data, timestamp: Date.now() }));
+        } catch (e) {}
+      }
+
+      getCachedData() {
+        try {
+          const cached = localStorage.getItem('phivolcs_cache');
+          if (!cached) return null;
+          const { data, timestamp } = JSON.parse(cached);
+          if (Date.now() - timestamp < 1800000) return data;
+        } catch (e) {}
+        return null;
+      }
+    }
+
+    // Initialize App
+    document.addEventListener('DOMContentLoaded', () => {
+      new UnifiedLiveHub();
+      new PhivolcsManager();
+      loadChannels();
+      fetchAndRender();
+      setInterval(fetchAndRender, 30000);
+    });
+  </script>
+</body>
+</html>
