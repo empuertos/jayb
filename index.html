@@ -781,7 +781,7 @@
 
     manualRefresh.addEventListener("click", fetchAndRender);
 
-    /* PHIVOLCS Manager Class - Fixed CSV Parsing */
+    /* PHIVOLCS Manager Class - Debug & Dynamic Parser */
     class PhivolcsManager {
       constructor() {
         this.url = "https://phivolcs.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/";
@@ -793,8 +793,6 @@
         this.refreshBtn = document.getElementById("phivolcsRefresh");
         this.maxRows = 10;
         this.refreshInterval = 10000;
-        this.retryAttempts = 3;
-        this.retryDelay = 2000;
 
         this.init();
       }
@@ -807,7 +805,7 @@
         this.startAutoRefresh();
       }
 
-      async fetchData(attempt = 1) {
+      async fetchData() {
         this.setStatus("Fetching…");
         this.hideError();
         this.showLoading();
@@ -815,91 +813,90 @@
         try {
           const response = await fetch(this.url, { cache: "no-cache" });
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          const text = await response.text();
-          const data = this.parseAndProcessData(text);
+          const rawText = await response.text();
+
+          // Debug overlay to display raw data format directly on screen
+          this.showDebugRaw(rawText);
+
+          const data = this.parseAndProcessData(rawText);
           this.renderTable(data);
           this.updateTimestamp();
           this.setStatus("");
-          this.cacheData(data);
         } catch (error) {
-          if (attempt < this.retryAttempts) {
-            this.setStatus(`Retrying... (${attempt}/${this.retryAttempts})`);
-            setTimeout(() => this.fetchData(attempt + 1), this.retryDelay);
-          } else {
-            this.showError("Failed to load PHIVOLCS data: " + error.message);
-            this.setStatus("Error");
-            const cached = this.getCachedData();
-            if (cached) {
-              this.renderTable(cached);
-              this.setStatus("Using cached data");
-            }
-          }
+          this.showError("Failed to load PHIVOLCS data: " + error.message);
+          this.setStatus("Error");
         } finally {
           this.hideLoading();
         }
       }
 
-      // Safe CSV Splitter that handles quoted fields with commas accurately
-      parseCSV(text) {
-        const lines = text.trim().split(/\r?\n/);
-        return lines.map(line => {
-          const row = [];
-          let insideQuote = false;
-          let entry = '';
-          for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            if (char === '"') {
-              insideQuote = !insideQuote;
-            } else if (char === ',' && !insideQuote) {
-              row.push(entry.trim().replace(/^"|"$/g, ''));
-              entry = '';
-            } else {
-              entry += char;
-            }
-          }
-          row.push(entry.trim().replace(/^"|"$/g, ''));
-          return row;
-        }).filter(r => r.length > 1 || r[0] !== '');
+      showDebugRaw(text) {
+        let debugBox = document.getElementById("phivolcsDebugBox");
+        if (!debugBox) {
+          debugBox = document.createElement("pre");
+          debugBox.id = "phivolcsDebugBox";
+          debugBox.style.cssText = "background:#000; color:#0f0; padding:10px; font-size:11px; max-height:150px; overflow:auto; margin-bottom:10px; border-radius:5px; white-space:pre-wrap; word-break:break-all;";
+          this.container.parentNode.insertBefore(debugBox, this.container);
+        }
+        debugBox.textContent = "RAW API DATA PREVIEW:\n" + text.substring(0, 300);
       }
 
-      parseAndProcessData(csvText) {
-        const parsed = this.parseCSV(csvText);
-        if (parsed.length === 0) return [];
+      parseAndProcessData(text) {
+        // Handle JSON response if applicable
+        if (text.trim().startsWith("{") || text.trim().startsWith("[")) {
+          try {
+            const json = JSON.parse(text);
+            const items = Array.isArray(json) ? json : (json.data || json.results || []);
+            return items.slice(0, this.maxRows).map(item => ({
+              "Date-Time": item.dateTime || item.date || item['Date-Time'] || '-',
+              "Magnitude": item.magnitude || item.mag || item['Magnitude'] || '-',
+              "Location": item.location || item.loc || item['Location'] || '-'
+            }));
+          } catch(e) {}
+        }
 
-        const headers = parsed[0].map(h => h.toLowerCase());
-        
-        // Find header indices dynamically
-        let dateTimeIdx = headers.findIndex(h => h.includes("date") || h.includes("time"));
-        let magIdx = headers.findIndex(h => h.includes("mag") || h.includes("magnitude"));
-        let locIdx = headers.findIndex(h => h.includes("location") || h.includes("loc"));
-
-        // Default fallbacks if no header match
-        if (dateTimeIdx === -1) dateTimeIdx = 0;
-        if (magIdx === -1) magIdx = 1;
-        if (locIdx === -1) locIdx = 2;
+        // Generic multi-delimiter parser (CSV, TSV, or Pipe)
+        const lines = text.trim().split(/\r?\n/).filter(l => l.trim().length > 0);
+        if (lines.length === 0) return [];
 
         const results = [];
-        const rows = parsed.slice(1, this.maxRows + 1);
-
-        rows.forEach(row => {
-          if (row.length === 0) return;
-
-          let dateTimeVal = row[dateTimeIdx] || '-';
-          let magVal = row[magIdx] || '-';
+        
+        for (let i = 0; i < Math.min(lines.length, this.maxRows + 1); i++) {
+          const line = lines[i];
           
-          // Combine remaining cells for location if unquoted commas exist
-          let locVal = row.slice(locIdx).join(', ').trim();
-          if (!locVal) locVal = '-';
+          // Skip line if it's header line containing words "Date" or "Magnitude"
+          if (i === 0 && (line.toLowerCase().includes("date") || line.toLowerCase().includes("magnitude"))) {
+            continue;
+          }
 
-          // Clean up location formatting if depth value precedes km (e.g. "005 km S..." -> "km S...")
-          locVal = locVal.replace(/^\d+\s*(?=km)/i, '');
+          // Split line by commas, tabs, or multiple spaces
+          const parts = line.split(/,|\t|{2,}/).map(p => p.replace(/^"|"$/g, '').trim()).filter(Boolean);
 
-          results.push({
-            "Date-Time": dateTimeVal,
-            "Magnitude": magVal,
-            "Location": locVal
-          });
-        });
+          if (parts.length >= 2) {
+            // Find magnitude number inside parts
+            const magIndex = parts.findIndex(p => !isNaN(parseFloat(p)) && parseFloat(p) < 10);
+            
+            let dateTimeVal = '-';
+            let magVal = '-';
+            let locVal = '-';
+
+            if (magIndex !== -1) {
+              magVal = parts[magIndex];
+              dateTimeVal = parts.slice(0, magIndex).join(' ');
+              locVal = parts.slice(magIndex + 1).join(', ');
+            } else {
+              dateTimeVal = parts[0] || '-';
+              magVal = parts[1] || '-';
+              locVal = parts.slice(2).join(', ') || '-';
+            }
+
+            results.push({
+              "Date-Time": dateTimeVal,
+              "Magnitude": magVal,
+              "Location": locVal || '-'
+            });
+          }
+        }
 
         return results;
       }
@@ -950,22 +947,6 @@
       showLoading() { if (this.loadingEl) this.loadingEl.style.display = "inline-block"; }
       hideLoading() { if (this.loadingEl) this.loadingEl.style.display = "none"; }
       startAutoRefresh() { this.interval = setInterval(() => this.fetchData(), this.refreshInterval); }
-
-      cacheData(data) {
-        try {
-          localStorage.setItem('phivolcs_cache', JSON.stringify({ data, timestamp: Date.now() }));
-        } catch (e) {}
-      }
-
-      getCachedData() {
-        try {
-          const cached = localStorage.getItem('phivolcs_cache');
-          if (!cached) return null;
-          const { data, timestamp } = JSON.parse(cached);
-          if (Date.now() - timestamp < 1800000) return data;
-        } catch (e) {}
-        return null;
-      }
     }
 
     // Initialize App
