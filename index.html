@@ -281,7 +281,7 @@
           <span class="credit-badge credit-phivolcs">Credit: PHIVOLCS</span>
         </div>
         
-        <div style="display:flex; justify-between; align-items: center; margin-bottom: 1rem;">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
           <button class="btn" id="phivolcsRefresh">🔄 Refresh now</button>
           <span id="phivolcsStatus" class="lotto-small" style="color: var(--accent-amber);"></span>
         </div>
@@ -305,7 +305,7 @@
           <span class="credit-badge credit-pcso">Credit: PCSO</span>
         </div>
 
-        <div style="display:flex; justify-between; align-items: center; margin-bottom: 1rem;">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
           <button class="btn" id="manualRefresh">🔄 Refresh now</button>
           <span id="lottoStatus" class="lotto-small" style="color: var(--accent-emerald);"></span>
         </div>
@@ -846,6 +846,18 @@
         if (parsed.length > 0) {
           // Clean headers
           parsed[0] = parsed[0].map(h => h.replace(/\s*\([^)]*\)/g, '').trim());
+          
+          const headers = parsed[0];
+          const locIndex = headers.findIndex(h => h.toLowerCase() === 'location');
+
+          // Clean Location string to remove standalone depth numbers like "005" before "km"
+          if (locIndex !== -1) {
+            parsed.slice(1).forEach(row => {
+              if (row[locIndex]) {
+                row[locIndex] = row[locIndex].replace(/^\d+\s*/, '').trim();
+              }
+            });
+          }
         }
         return parsed;
       }
@@ -884,7 +896,6 @@
         const rows = data.slice(1);
         this.container.innerHTML = "";
 
-        // Filter and reorder desired fields cleanly
         const targetFields = ["Date-Time", "Magnitude", "Location"];
 
         rows.forEach(row => {
