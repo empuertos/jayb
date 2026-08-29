@@ -164,7 +164,7 @@
       border-left: 4px solid var(--accent-pink);
     }
 
-    /* Modern Responsive Tables & Earthquake Single Card */
+    /* Lotto Tables */
     .lotto-card { width: 100%; }
     .lotto-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 1rem; }
     .lotto-th, .lotto-td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--card-border); }
@@ -199,7 +199,7 @@
     .iptv-video { width: 100%; aspect-ratio: 16/9; display: block; }
     .iptv-status { margin-top: 10px; font-size: 0.875rem; color: var(--accent-emerald); text-align: center; min-height: 20px; }
 
-    /* Entertainment Links Grid */
+    /* Links Grid */
     .link-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; list-style: none; }
     .link-list a { 
       color: var(--text-primary); 
@@ -324,18 +324,18 @@
       </div>
 
       <div class="iptv-controls">
-        <select id="countrySelect" class="form-select" style="flex: 1; min-width: 180px;" onchange="loadChannels()">
+        <select id="countrySelect" class="form-select" style="flex: 1; min-width: 180px;">
           <option value="ph" selected>🇵🇭 Philippines</option>
           <option value="us">🇺🇸 United States</option>
           <option value="gb">🇬🇧 United Kingdom</option>
           <option value="jp">🇯🇵 Japan</option>
         </select>
 
-        <select id="iptvChannelSelect" class="form-select" style="flex: 1; min-width: 180px;" onchange="playChannel()">
+        <select id="iptvChannelSelect" class="form-select" style="flex: 1; min-width: 180px;">
           <option value="">-- Select Channel --</option>
         </select>
 
-        <button class="btn" onclick="loadChannels()">🔄 Refresh</button>
+        <button class="btn" id="refreshIptvBtn">🔄 Refresh</button>
       </div>
 
       <div class="iptv-player-box">
@@ -460,503 +460,257 @@
   </footer>
 
   <script>
-    /* Global IPTV Player Script */
-    const WORKER_BASE = 'https://iptv-proxy.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev';
-    const iptvVideo = document.getElementById('iptvVideo');
-    const iptvStatus = document.getElementById('iptvStatus');
-    const countrySelect = document.getElementById('countrySelect');
-    const iptvChannelSelect = document.getElementById('iptvChannelSelect');
-    let hls = null;
-    let retryCount = 0;
-    const MAX_RETRIES = 3;
-
-    async function loadChannels() {
-      const code = countrySelect.value;
-      iptvStatus.innerText = `Fetching channels...`;
-      iptvChannelSelect.innerHTML = '<option value="">-- Loading... --</option>';
-
-      try {
-        const res = await fetch(`${WORKER_BASE}/?mode=get_channels&country=${code}`);
-        const channels = await res.json();
-
-        iptvChannelSelect.innerHTML = '<option value="">-- Select Channel --</option>';
-        channels.forEach(ch => {
-          const opt = document.createElement('option');
-          opt.value = ch.id;
-          opt.innerText = ch.title;
-          iptvChannelSelect.appendChild(opt);
-        });
-
-        iptvStatus.innerText = `Channels Loaded!`;
-      } catch (e) {
-        iptvStatus.innerText = `Error loading channels.`;
-      }
-    }
-
-    function playChannel() {
-      const streamId = iptvChannelSelect.value;
-      if (!streamId) return;
-
-      retryCount = 0;
-      const proxiedUrl = `${WORKER_BASE}/?id=${encodeURIComponent(streamId)}`;
-      iptvStatus.innerText = 'Connecting...';
-
-      if (hls) {
-        hls.destroy();
-      }
-
-      if (Hls.isSupported()) {
-        hls = new Hls({
-          enableWorker: true,
-          lowLatencyMode: true,
-          maxBufferLength: 5,
-          manifestLoadingTimeOut: 8000,
-          fragLoadingTimeOut: 8000
-        });
-
-        hls.loadSource(proxiedUrl);
-        hls.attachMedia(iptvVideo);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          iptvStatus.innerText = 'Playing!';
-          iptvVideo.play().then(() => {
-            iptvVideo.muted = false;
-          }).catch(() => {
-            iptvVideo.play();
-          });
-        });
-
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) {
-            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-              if (retryCount < MAX_RETRIES) {
-                retryCount++;
-                iptvStatus.innerText = `Connection weak, retrying (${retryCount}/${MAX_RETRIES})...`;
-                hls.startLoad();
-              } else {
-                iptvStatus.innerText = '⚠️ Channel is offline or unavailable.';
-                hls.destroy();
-              }
-            } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-              iptvStatus.innerText = 'Recovering video...';
-              hls.recoverMediaError();
-            } else {
-              iptvStatus.innerText = '⚠️ Stream error or unsupported format.';
-              hls.destroy();
-            }
-          }
-        });
-      } else if (iptvVideo.canPlayType('application/vnd.apple.mpegurl')) {
-        iptvVideo.src = proxiedUrl;
-        iptvVideo.play();
-      }
-    }
-
-    /* Unified Application Controller */
-    class UnifiedLiveHub {
-      constructor() {
-        this.config = {
-          weatherWorkerURL: 'https://weather-worker.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/',
-          cities: [
-            { name: 'Manila', query: 'Manila,PH', color: 'var(--accent-pink)' },
-            { name: 'Talisay City Cebu', query: 'Talisay,Cebu,PH', color: 'var(--accent-cyan)' },
-            { name: 'Cebu City', query: 'Cebu City,PH', color: 'var(--accent-emerald)' },
-            { name: 'Cagayan de Oro', query: 'Cagayan de Oro,PH', color: 'var(--accent-amber)' },
-            { name: 'Zamboanga', query: 'Zamboanga,PH', color: 'var(--accent-purple)' },
-            { name: 'Davao City', query: 'Davao City,PH', color: '#f97316' }
-          ]
-        };
-
-        this.init();
-      }
-
-      init() {
-        this.setupDateTime();
-        this.setupWeather();
-        this.setupMedia();
-      }
-
-      setupDateTime() {
-        const updateDateTime = () => {
-          const now = new Date();
-          const dateOptions = { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' };
-          const timeOptions = { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-          
-          document.getElementById('date').textContent = new Intl.DateTimeFormat('en-US', dateOptions).format(now);
-          document.getElementById('ph-time').textContent = new Intl.DateTimeFormat('en-US', timeOptions).format(now);
-        };
+    (function() {
+      // Date & Time Handler
+      function updateDateTime() {
+        const now = new Date();
+        const dateOptions = { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' };
+        const timeOptions = { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
         
-        updateDateTime();
-        setInterval(updateDateTime, 1000);
+        const dEl = document.getElementById('date');
+        const tEl = document.getElementById('ph-time');
+        if (dEl) dEl.textContent = new Intl.DateTimeFormat('en-US', dateOptions).format(now);
+        if (tEl) tEl.textContent = new Intl.DateTimeFormat('en-US', timeOptions).format(now);
       }
+      setInterval(updateDateTime, 1000);
+      updateDateTime();
 
-      async setupWeather() {
+      // Weather Handler
+      async function setupWeather() {
         const container = document.getElementById('weatherContainer');
+        const cities = [
+          { name: 'Manila', query: 'Manila,PH', color: 'var(--accent-pink)' },
+          { name: 'Talisay City Cebu', query: 'Talisay,Cebu,PH', color: 'var(--accent-cyan)' },
+          { name: 'Cebu City', query: 'Cebu City,PH', color: 'var(--accent-emerald)' },
+          { name: 'Cagayan de Oro', query: 'Cagayan de Oro,PH', color: 'var(--accent-amber)' },
+          { name: 'Zamboanga', query: 'Zamboanga,PH', color: 'var(--accent-purple)' },
+          { name: 'Davao City', query: 'Davao City,PH', color: '#f97316' }
+        ];
 
         try {
-          const weatherPromises = this.config.cities.map(async (city) => {
-            const response = await fetch(`${this.config.weatherWorkerURL}?q=${encodeURIComponent(city.query)}`);
-            const data = await response.json();
-
+          const weatherPromises = cities.map(async (city) => {
+            const res = await fetch(`https://weather-worker.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/?q=${encodeURIComponent(city.query)}`);
+            const data = await res.json();
             return `
               <div class="widget">
                 <div style="color: ${city.color}; font-weight:700; font-size:1.1rem;">${city.name}</div>
                 <div class="widget-content" style="display:flex; justify-content: space-between; align-items:center; margin-top:0.5rem;">
                   <div>
-                    <div style="font-size: 1.8rem; font-weight: 800;">${data.main.temp.toFixed(1)}°C</div>
-                    <div style="text-transform: capitalize; color: var(--text-secondary); font-size: 0.875rem;">${data.weather[0].description}</div>
+                    <div style="font-size: 1.8rem; font-weight: 800;">${data.main ? data.main.temp.toFixed(1) : '--'}°C</div>
+                    <div style="text-transform: capitalize; color: var(--text-secondary); font-size: 0.875rem;">${data.weather ? data.weather[0].description : ''}</div>
                   </div>
-                  <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png"
-                       alt="${data.weather[0].description}" style="width: 50px; height: 50px;">
+                  ${data.weather ? `<img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="icon" style="width: 50px; height: 50px;">` : ''}
                 </div>
               </div>
             `;
           });
-
-          const weatherHTML = await Promise.all(weatherPromises);
-          container.innerHTML = weatherHTML.join('');
-        } catch (error) {
-          container.innerHTML = '<div class="widget">Failed to load weather data</div>';
+          const htmls = await Promise.all(weatherPromises);
+          if (container) container.innerHTML = htmls.join('');
+        } catch (e) {
+          if (container) container.innerHTML = '<div class="widget">Failed to load weather data</div>';
         }
       }
+      setupWeather();
 
-      setupMedia() {
-        const select = document.getElementById('channelSelect');
-        const player = document.getElementById('livePlayer');
-        const container = document.getElementById('playerContainer');
-        
-        select.addEventListener('change', (e) => {
-          const channelId = e.target.value;
-          if (channelId) {
-            player.src = `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&mute=1&playsinline=1`;
-            container.style.display = 'block';
-          } else {
-            player.src = '';
-            container.style.display = 'none';
-          }
-        });
+      // PHIVOLCS Earthquake Handler
+      async function fetchPhivolcs() {
+        const container = document.getElementById("phivolcsContainer");
+        const statusEl = document.getElementById("phivolcsStatus");
+        const updatedEl = document.getElementById("phivolcsUpdated");
+        const errorEl = document.getElementById("phivolcsError");
 
-        this.setupAudioStream();
-      }
-
-      setupAudioStream() {
-        const audioPlayer = document.getElementById('audioPlayer');
-        const streamStatus = document.getElementById('streamStatus');
-        const volumeInfo = document.getElementById('volumeInfo');
-        const refreshAudio = document.getElementById('refreshAudio');
-        const audioLoading = document.getElementById('audioLoading');
-
-        audioPlayer.addEventListener('loadstart', () => {
-          streamStatus.textContent = 'Loading RMN Cebu stream...';
-          audioLoading.style.display = 'inline-block';
-        });
-
-        audioPlayer.addEventListener('canplay', () => {
-          streamStatus.textContent = 'RMN Cebu - Ready to play';
-          audioLoading.style.display = 'none';
-        });
-
-        audioPlayer.addEventListener('playing', () => {
-          streamStatus.textContent = 'RMN Cebu - Now playing';
-          audioLoading.style.display = 'none';
-        });
-
-        audioPlayer.addEventListener('pause', () => {
-          streamStatus.textContent = 'RMN Cebu - Paused';
-        });
-
-        audioPlayer.addEventListener('ended', () => {
-          streamStatus.textContent = 'RMN Cebu - Stream ended';
-        });
-
-        audioPlayer.addEventListener('error', (e) => {
-          streamStatus.textContent = 'Error: Could not load stream';
-          audioLoading.style.display = 'none';
-        });
-
-        audioPlayer.addEventListener('volumechange', () => {
-          const volume = Math.round(audioPlayer.volume * 100);
-          volumeInfo.textContent = `Volume: ${volume}%`;
-        });
-
-        refreshAudio.addEventListener('click', () => {
-          streamStatus.textContent = 'Refreshing stream...';
-          audioLoading.style.display = 'inline-block';
-          
-          const currentTime = audioPlayer.currentTime;
-          const currentVolume = audioPlayer.volume;
-          const wasPaused = audioPlayer.paused;
-          
-          audioPlayer.src = audioPlayer.src;
-          audioPlayer.load();
-          
-          setTimeout(() => {
-            audioPlayer.currentTime = currentTime;
-            audioPlayer.volume = currentVolume;
-            if (!wasPaused) {
-              audioPlayer.play().catch(e => {
-                streamStatus.textContent = 'Click play to start listening';
-              });
-            }
-            audioLoading.style.display = 'none';
-          }, 100);
-        });
-      }
-    }
-
-    /* 3D Lotto Reader Functions */
-    const CSV_URL = "https://sheets-worker.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/";
-    const tableContainer = document.getElementById("tableContainer");
-    const errorMsg = document.getElementById("errorMsg");
-    const lastUpdated = document.getElementById("lastUpdated");
-    const lottoStatus = document.getElementById("lottoStatus");
-    const loadingText = document.getElementById("loadingText");
-    const manualRefresh = document.getElementById("manualRefresh");
-
-    function parseCSV(text) {
-      return text.trim().split("\n").map(r => r.split(",").map(c => c.replace(/^"|"$/g, "")));
-    }
-
-    function buildTable(data, container = tableContainer) {
-      if (!data || data.length === 0) {
-        container.innerHTML = "<div class='lotto-small'>No data available.</div>";
-        return;
-      }
-      const thead = data[0];
-      const bodyRows = data.slice(1);
-
-      const table = document.createElement("table");
-      table.className = "lotto-table responsive-table";
-      const trHead = document.createElement("tr");
-      thead.forEach(h => {
-        const th = document.createElement("th");
-        th.className = "lotto-th";
-        th.textContent = h;
-        trHead.appendChild(th);
-      });
-      const theadEl = document.createElement("thead");
-      theadEl.appendChild(trHead);
-      table.appendChild(theadEl);
-
-      const tbody = document.createElement("tbody");
-      bodyRows.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.className = "lotto-tr";
-        row.forEach((cell, index) => {
-          const td = document.createElement("td");
-          td.className = "lotto-td";
-          td.textContent = cell;
-          td.setAttribute('data-label', thead[index]);
-          tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
-      });
-      table.appendChild(tbody);
-
-      container.innerHTML = "";
-      container.appendChild(table);
-    }
-
-    async function fetchAndRender() {
-      lottoStatus.textContent = "Fetching…";
-      errorMsg.style.display = "none";
-      if (loadingText) loadingText.style.display = "inline-block";
-      try {
-        const resp = await fetch(CSV_URL, { cache: "no-cache" });
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const text = await resp.text();
-        const parsed = parseCSV(text);
-        buildTable(parsed);
-        const now = new Date();
-        lastUpdated.textContent = "Last updated: " + now.toLocaleString("en-US", { hour12: true });
-        lottoStatus.textContent = "";
-      } catch (err) {
-        errorMsg.textContent = "Failed to load spreadsheet: " + err.message;
-        errorMsg.style.display = "block";
-        lottoStatus.textContent = "Error";
-      } finally {
-        if (loadingText) loadingText.style.display = "none";
-      }
-    }
-
-    manualRefresh.addEventListener("click", fetchAndRender);
-
-    /* PHIVOLCS Manager Class - Debug & Dynamic Parser */
-    class PhivolcsManager {
-      constructor() {
-        this.url = "https://phivolcs.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/";
-        this.container = document.getElementById("phivolcsContainer");
-        this.errorEl = document.getElementById("phivolcsError");
-        this.updatedEl = document.getElementById("phivolcsUpdated");
-        this.statusEl = document.getElementById("phivolcsStatus");
-        this.loadingEl = document.getElementById("phivolcsLoading");
-        this.refreshBtn = document.getElementById("phivolcsRefresh");
-        this.maxRows = 10;
-        this.refreshInterval = 10000;
-
-        this.init();
-      }
-
-      init() {
-        if (this.refreshBtn) {
-          this.refreshBtn.addEventListener("click", () => this.fetchData());
-        }
-        this.fetchData();
-        this.startAutoRefresh();
-      }
-
-      async fetchData() {
-        this.setStatus("Fetching…");
-        this.hideError();
-        this.showLoading();
+        if (statusEl) statusEl.textContent = "Fetching...";
+        if (errorEl) errorEl.style.display = "none";
 
         try {
-          const response = await fetch(this.url, { cache: "no-cache" });
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          const rawText = await response.text();
+          const resp = await fetch("https://phivolcs.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/", { cache: "no-cache" });
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          const text = await resp.text();
 
-          // Debug overlay to display raw data format directly on screen
-          this.showDebugRaw(rawText);
+          const lines = text.trim().split(/\r?\n/).filter(l => l.trim().length > 0);
+          if (lines.length === 0) {
+            container.innerHTML = "<div class='lotto-small'>No earthquake data found.</div>";
+            return;
+          }
 
-          const data = this.parseAndProcessData(rawText);
-          this.renderTable(data);
-          this.updateTimestamp();
-          this.setStatus("");
-        } catch (error) {
-          this.showError("Failed to load PHIVOLCS data: " + error.message);
-          this.setStatus("Error");
-        } finally {
-          this.hideLoading();
+          container.innerHTML = "";
+          let count = 0;
+
+          for (let line of lines) {
+            if (count >= 10) break;
+            const rowParts = line.split(/,|\t|{2,}/).map(p => p.replace(/^"|"$/g, '').trim()).filter(Boolean);
+            if (rowParts.length < 2) continue;
+
+            let dt = rowParts[0] || '-';
+            let mag = rowParts[1] || '-';
+            let loc = rowParts.slice(2).join(', ') || '-';
+
+            // Smart check for header skipping
+            if (dt.toLowerCase().includes("date") || dt.toLowerCase().includes("time")) continue;
+
+            const card = document.createElement("div");
+            card.className = "eq-card-single";
+            card.innerHTML = `
+              <div class="eq-row"><span class="eq-label">Date-Time</span><span class="eq-value">${dt}</span></div>
+              <div class="eq-row"><span class="eq-label">Magnitude</span><span class="eq-value">${mag}</span></div>
+              <div class="eq-row"><span class="eq-label">Location</span><span class="eq-value">${loc}</span></div>
+            `;
+            container.appendChild(card);
+            count++;
+          }
+
+          if (updatedEl) updatedEl.textContent = "Last updated: " + new Date().toLocaleString("en-US", { hour12: true });
+          if (statusEl) statusEl.textContent = "";
+        } catch (err) {
+          if (errorEl) {
+            errorEl.textContent = "Failed to load PHIVOLCS data: " + err.message;
+            errorEl.style.display = "block";
+          }
+          if (statusEl) statusEl.textContent = "Error";
         }
       }
 
-      showDebugRaw(text) {
-        let debugBox = document.getElementById("phivolcsDebugBox");
-        if (!debugBox) {
-          debugBox = document.createElement("pre");
-          debugBox.id = "phivolcsDebugBox";
-          debugBox.style.cssText = "background:#000; color:#0f0; padding:10px; font-size:11px; max-height:150px; overflow:auto; margin-bottom:10px; border-radius:5px; white-space:pre-wrap; word-break:break-all;";
-          this.container.parentNode.insertBefore(debugBox, this.container);
-        }
-        debugBox.textContent = "RAW API DATA PREVIEW:\n" + text.substring(0, 300);
-      }
+      document.getElementById("phivolcsRefresh")?.addEventListener("click", fetchPhivolcs);
+      fetchPhivolcs();
+      setInterval(fetchPhivolcs, 10000);
 
-      parseAndProcessData(text) {
-        // Handle JSON response if applicable
-        if (text.trim().startsWith("{") || text.trim().startsWith("[")) {
-          try {
-            const json = JSON.parse(text);
-            const items = Array.isArray(json) ? json : (json.data || json.results || []);
-            return items.slice(0, this.maxRows).map(item => ({
-              "Date-Time": item.dateTime || item.date || item['Date-Time'] || '-',
-              "Magnitude": item.magnitude || item.mag || item['Magnitude'] || '-',
-              "Location": item.location || item.loc || item['Location'] || '-'
-            }));
-          } catch(e) {}
-        }
+      // PCSO 3D Lotto Handler
+      async function fetchLotto() {
+        const container = document.getElementById("tableContainer");
+        const statusEl = document.getElementById("lottoStatus");
+        const updatedEl = document.getElementById("lastUpdated");
+        const errorEl = document.getElementById("errorMsg");
 
-        // Generic multi-delimiter parser (CSV, TSV, or Pipe)
-        const lines = text.trim().split(/\r?\n/).filter(l => l.trim().length > 0);
-        if (lines.length === 0) return [];
+        if (statusEl) statusEl.textContent = "Fetching...";
+        if (errorEl) errorEl.style.display = "none";
 
-        const results = [];
-        
-        for (let i = 0; i < Math.min(lines.length, this.maxRows + 1); i++) {
-          const line = lines[i];
+        try {
+          const resp = await fetch("https://sheets-worker.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/", { cache: "no-cache" });
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          const text = await resp.text();
+
+          const rows = text.trim().split("\n").map(r => r.split(",").map(c => c.replace(/^"|"$/g, "")));
+          if (!rows || rows.length === 0) {
+            container.innerHTML = "<div class='lotto-small'>No data available.</div>";
+            return;
+          }
+
+          const table = document.createElement("table");
+          table.className = "lotto-table";
           
-          // Skip line if it's header line containing words "Date" or "Magnitude"
-          if (i === 0 && (line.toLowerCase().includes("date") || line.toLowerCase().includes("magnitude"))) {
-            continue;
-          }
+          let html = "<thead><tr>";
+          rows[0].forEach(h => html += `<th class="lotto-th">${h}</th>`);
+          html += "</tr></thead><tbody>";
 
-          // Split line by commas, tabs, or multiple spaces
-          const parts = line.split(/,|\t|{2,}/).map(p => p.replace(/^"|"$/g, '').trim()).filter(Boolean);
-
-          if (parts.length >= 2) {
-            // Find magnitude number inside parts
-            const magIndex = parts.findIndex(p => !isNaN(parseFloat(p)) && parseFloat(p) < 10);
-            
-            let dateTimeVal = '-';
-            let magVal = '-';
-            let locVal = '-';
-
-            if (magIndex !== -1) {
-              magVal = parts[magIndex];
-              dateTimeVal = parts.slice(0, magIndex).join(' ');
-              locVal = parts.slice(magIndex + 1).join(', ');
-            } else {
-              dateTimeVal = parts[0] || '-';
-              magVal = parts[1] || '-';
-              locVal = parts.slice(2).join(', ') || '-';
-            }
-
-            results.push({
-              "Date-Time": dateTimeVal,
-              "Magnitude": magVal,
-              "Location": locVal || '-'
-            });
-          }
-        }
-
-        return results;
-      }
-
-      renderTable(data) {
-        if (!data || data.length === 0) {
-          this.container.innerHTML = "<div class='lotto-small'>No data available.</div>";
-          return;
-        }
-
-        this.container.innerHTML = "";
-
-        data.forEach(item => {
-          const cardEl = document.createElement("div");
-          cardEl.className = "eq-card-single";
-
-          Object.keys(item).forEach(key => {
-            const rowEl = document.createElement("div");
-            rowEl.className = "eq-row";
-
-            const labelEl = document.createElement("span");
-            labelEl.className = "eq-label";
-            labelEl.textContent = key;
-
-            const valEl = document.createElement("span");
-            valEl.className = "eq-value";
-            valEl.textContent = item[key] || '-';
-
-            rowEl.appendChild(labelEl);
-            rowEl.appendChild(valEl);
-            cardEl.appendChild(rowEl);
+          rows.slice(1).forEach(r => {
+            html += "<tr class='lotto-tr'>";
+            r.forEach((c, idx) => html += `<td class="lotto-td" data-label="${rows[0][idx] || ''}">${c}</td>`);
+            html += "</tr>";
           });
+          html += "</tbody>";
 
-          this.container.appendChild(cardEl);
-        });
-      }
+          table.innerHTML = html;
+          container.innerHTML = "";
+          container.appendChild(table);
 
-      updateTimestamp() {
-        const now = new Date();
-        if (this.updatedEl) {
-          this.updatedEl.textContent = "Last updated: " + now.toLocaleString("en-US", { hour12: true });
+          if (updatedEl) updatedEl.textContent = "Last updated: " + new Date().toLocaleString("en-US", { hour12: true });
+          if (statusEl) statusEl.textContent = "";
+        } catch (err) {
+          if (errorEl) {
+            errorEl.textContent = "Failed to load lotto data: " + err.message;
+            errorEl.style.display = "block";
+          }
+          if (statusEl) statusEl.textContent = "Error";
         }
       }
 
-      setStatus(text) { if (this.statusEl) this.statusEl.textContent = text; }
-      showError(message) { if (this.errorEl) { this.errorEl.textContent = message; this.errorEl.style.display = "block"; } }
-      hideError() { if (this.errorEl) this.errorEl.style.display = "none"; }
-      showLoading() { if (this.loadingEl) this.loadingEl.style.display = "inline-block"; }
-      hideLoading() { if (this.loadingEl) this.loadingEl.style.display = "none"; }
-      startAutoRefresh() { this.interval = setInterval(() => this.fetchData(), this.refreshInterval); }
-    }
+      document.getElementById("manualRefresh")?.addEventListener("click", fetchLotto);
+      fetchLotto();
+      setInterval(fetchLotto, 30000);
 
-    // Initialize App
-    document.addEventListener('DOMContentLoaded', () => {
-      new UnifiedLiveHub();
-      new PhivolcsManager();
+      // IPTV Player Handler
+      const WORKER_BASE = 'https://iptv-proxy.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev';
+      const iptvVideo = document.getElementById('iptvVideo');
+      const iptvStatus = document.getElementById('iptvStatus');
+      const countrySelect = document.getElementById('countrySelect');
+      const iptvChannelSelect = document.getElementById('iptvChannelSelect');
+      let hls = null;
+
+      async function loadChannels() {
+        if (!countrySelect || !iptvChannelSelect) return;
+        iptvStatus.innerText = `Fetching channels...`;
+        iptvChannelSelect.innerHTML = '<option value="">-- Loading... --</option>';
+
+        try {
+          const res = await fetch(`${WORKER_BASE}/?mode=get_channels&country=${countrySelect.value}`);
+          const channels = await res.json();
+          iptvChannelSelect.innerHTML = '<option value="">-- Select Channel --</option>';
+          channels.forEach(ch => {
+            const opt = document.createElement('option');
+            opt.value = ch.id;
+            opt.innerText = ch.title;
+            iptvChannelSelect.appendChild(opt);
+          });
+          iptvStatus.innerText = `Channels Loaded!`;
+        } catch (e) {
+          iptvStatus.innerText = `Error loading channels.`;
+        }
+      }
+
+      function playChannel() {
+        const streamId = iptvChannelSelect.value;
+        if (!streamId) return;
+        const proxiedUrl = `${WORKER_BASE}/?id=${encodeURIComponent(streamId)}`;
+        iptvStatus.innerText = 'Connecting...';
+
+        if (hls) hls.destroy();
+
+        if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+          hls = new Hls();
+          hls.loadSource(proxiedUrl);
+          hls.attachMedia(iptvVideo);
+          hls.on(Hls.Events.MANIFEST_PARSED, () => {
+            iptvStatus.innerText = 'Playing!';
+            iptvVideo.play().catch(() => {});
+          });
+        } else if (iptvVideo.canPlayType('application/vnd.apple.mpegurl')) {
+          iptvVideo.src = proxiedUrl;
+          iptvVideo.play();
+        }
+      }
+
+      document.getElementById('refreshIptvBtn')?.addEventListener('click', loadChannels);
+      countrySelect?.addEventListener('change', loadChannels);
+      iptvChannelSelect?.addEventListener('change', playChannel);
       loadChannels();
-      fetchAndRender();
-      setInterval(fetchAndRender, 30000);
-    });
+
+      // YouTube Selector
+      const chanSelect = document.getElementById('channelSelect');
+      const livePlayer = document.getElementById('livePlayer');
+      const playerBox = document.getElementById('playerContainer');
+      chanSelect?.addEventListener('change', (e) => {
+        if (e.target.value) {
+          livePlayer.src = `https://www.youtube.com/embed/live_stream?channel=${e.target.value}&autoplay=1&mute=1&playsinline=1`;
+          playerBox.style.display = 'block';
+        } else {
+          livePlayer.src = '';
+          playerBox.style.display = 'none';
+        }
+      });
+
+      // Audio Stream
+      const audioPlayer = document.getElementById('audioPlayer');
+      const streamStatus = document.getElementById('streamStatus');
+      const refreshAudio = document.getElementById('refreshAudio');
+
+      audioPlayer?.addEventListener('playing', () => streamStatus.textContent = 'RMN Cebu - Now playing');
+      audioPlayer?.addEventListener('pause', () => streamStatus.textContent = 'RMN Cebu - Paused');
+      refreshAudio?.addEventListener('click', () => {
+        audioPlayer.src = audioPlayer.src;
+        audioPlayer.load();
+        audioPlayer.play().catch(() => {});
+      });
+    })();
   </script>
 </body>
 </html>
