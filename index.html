@@ -184,13 +184,14 @@
     .eq-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       padding: 0.6rem 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      gap: 1rem;
     }
     .eq-row:last-child { border-bottom: none; }
-    .eq-label { color: var(--accent-cyan); font-weight: 600; font-size: 0.9rem; }
-    .eq-value { color: var(--text-primary); font-size: 0.95rem; text-align: right; }
+    .eq-label { color: var(--accent-cyan); font-weight: 600; font-size: 0.9rem; min-width: 100px; }
+    .eq-value { color: var(--text-primary); font-size: 0.95rem; text-align: right; word-break: break-word; flex: 1; }
 
     /* IPTV Player */
     .iptv-controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
@@ -234,11 +235,6 @@
       .header h1 { font-size: 1.75rem; }
       .container { padding: 1rem; }
       .card { padding: 1rem; }
-      .responsive-table, .responsive-table thead, .responsive-table tbody, .responsive-table th, .responsive-table td, .responsive-table tr { display: block; }
-      .responsive-table thead tr { position: absolute; top: -9999px; left: -9999px; }
-      .responsive-table tr { margin-bottom: 1rem; border: 1px solid var(--card-border); border-radius: var(--radius-sm); padding: 0.5rem; background: rgba(15, 23, 42, 0.4); }
-      .responsive-table td { border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 0.5rem; text-align: right; word-wrap: break-word; }
-      .responsive-table td:before { content: attr(data-label); float: left; font-weight: 600; color: var(--accent-cyan); }
     }
   </style>
 </head>
@@ -841,85 +837,92 @@
         }
       }
 
-      parseAndProcessData(csvText) {
-        let parsed = this.parseCSV(csvText).slice(0, this.maxRows + 1);
-        if (parsed.length > 0) {
-          // Clean headers
-          parsed[0] = parsed[0].map(h => h.replace(/\s*\([^)]*\)/g, '').trim());
-          
-          const headers = parsed[0];
-          const locIndex = headers.findIndex(h => h.toLowerCase() === 'location');
-
-          // Clean Location string to remove standalone depth numbers like "005" before "km"
-          if (locIndex !== -1) {
-            parsed.slice(1).forEach(row => {
-              if (row[locIndex]) {
-                row[locIndex] = row[locIndex].replace(/^\d+\s*/, '').trim();
-              }
-            });
-          }
-        }
-        return parsed;
-      }
-
       parseCSV(text) {
         const rows = [];
-        const lines = text.trim().split("\n");
+        const lines = text.trim().split(/\r?\n/);
         for (let line of lines) {
-          const row = [];
-          let current = '';
-          let inQuotes = false;
-          for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            if (char === '"') {
-              inQuotes = !inQuotes;
-            } else if (char === ',' && !inQuotes) {
-              row.push(current.replace(/^"|"$/g, '').trim());
-              current = '';
-            } else {
-              current += char;
-            }
-          }
-          row.push(current.replace(/^"|"$/g, '').trim());
+          if (!line.trim()) continue;
+          // Regex to safely parse CSV fields even with commas inside quotes
+          const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
+          const row = matches.map(cell => cell.replace(/^"|"$/g, '').trim());
           rows.push(row);
         }
         return rows;
       }
 
+      parseAndProcessData(csvText) {
+        const parsed = this.parseCSV(csvText);
+        if (parsed.length === 0) return [];
+
+        const headers = parsed[0].map(h => h.replace(/\s*\([^)]*\)/g, '').trim().toLowerCase());
+        
+        // Find indices dynamically
+        let dateTimeIdx = headers.findIndex(h => h.includes("date") || h.includes("time"));
+        let magIdx = headers.findIndex(h => h.includes("mag") || h.includes("magnitude"));
+        let locIdx = headers.findIndex(h => h.includes("location") || h.includes("loc"));
+
+        // Fallbacks if header matching fails
+        if (dateTimeIdx === -1) dateTimeIdx = 0;
+        if (magIdx === -1) magIdx = 1;
+        if (locIdx === -1) locIdx = headers.length - 1;
+
+        const results = [];
+        const rows = parsed.slice(1, this.maxRows + 1);
+
+        rows.forEach(row => {
+          if (row.length <= Math.max(dateTimeIdx, magIdx)) return;
+
+          let dateTimeVal = row[dateTimeIdx] || '-';
+          let magVal = row[magIdx] || '-';
+
+          // Join all remaining columns for location if it was broken by unquoted commas
+          let locVal = '';
+          if (locIdx < row.length) {
+            locVal = row.slice(locIdx).join(', ');
+          } else {
+            locVal = row[row.length - 1] || '-';
+          }
+
+          // Clean Location string (Remove depth number like '005' before 'km')
+          locVal = locVal.replace(/^\d+\s*/, '').trim();
+
+          results.push({
+            "Date-Time": dateTimeVal,
+            "Magnitude": magVal,
+            "Location": locVal
+          });
+        });
+
+        return results;
+      }
+
       renderTable(data) {
-        if (!data || data.length < 2) {
+        if (!data || data.length === 0) {
           this.container.innerHTML = "<div class='lotto-small'>No data available.</div>";
           return;
         }
 
-        const rawHeaders = data[0];
-        const rows = data.slice(1);
         this.container.innerHTML = "";
 
-        const targetFields = ["Date-Time", "Magnitude", "Location"];
-
-        rows.forEach(row => {
+        data.forEach(item => {
           const cardEl = document.createElement("div");
           cardEl.className = "eq-card-single";
 
-          targetFields.forEach(field => {
-            const index = rawHeaders.findIndex(h => h.toLowerCase() === field.toLowerCase());
-            if (index !== -1) {
-              const rowEl = document.createElement("div");
-              rowEl.className = "eq-row";
+          Object.keys(item).forEach(key => {
+            const rowEl = document.createElement("div");
+            rowEl.className = "eq-row";
 
-              const labelEl = document.createElement("span");
-              labelEl.className = "eq-label";
-              labelEl.textContent = field;
+            const labelEl = document.createElement("span");
+            labelEl.className = "eq-label";
+            labelEl.textContent = key;
 
-              const valEl = document.createElement("span");
-              valEl.className = "eq-value";
-              valEl.textContent = row[index] || '-';
+            const valEl = document.createElement("span");
+            valEl.className = "eq-value";
+            valEl.textContent = item[key] || '-';
 
-              rowEl.appendChild(labelEl);
-              rowEl.appendChild(valEl);
-              cardEl.appendChild(rowEl);
-            }
+            rowEl.appendChild(labelEl);
+            rowEl.appendChild(valEl);
+            cardEl.appendChild(rowEl);
           });
 
           this.container.appendChild(cardEl);
