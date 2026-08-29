@@ -18,7 +18,6 @@
   <!-- Modern Colorful CSS Framework -->
   <style>
     :root {
-      /* Dark Vibrant Palette */
       --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
       --card-bg: rgba(30, 41, 59, 0.7);
       --card-border: rgba(255, 255, 255, 0.12);
@@ -124,7 +123,7 @@
     }
     
     .form-group { margin-bottom: 1rem; }
-    .form-select, .form-input {
+    .form-select {
       width: 100%;
       padding: 0.75rem 1rem;
       background: rgba(15, 23, 42, 0.8);
@@ -135,7 +134,7 @@
       outline: none;
       transition: var(--transition);
     }
-    .form-select:focus, .form-input:focus { border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2); }
+    .form-select:focus { border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2); }
 
     .btn {
       background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
@@ -165,7 +164,7 @@
       border-left: 4px solid var(--accent-pink);
     }
 
-    /* Modern Responsive Tables */
+    /* Modern Responsive Tables & Earthquake Single Card */
     .lotto-card { width: 100%; }
     .lotto-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 1rem; }
     .lotto-th, .lotto-td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--card-border); }
@@ -173,6 +172,25 @@
     .lotto-tr:hover { background: rgba(255, 255, 255, 0.03); }
     .lotto-small { font-size: 0.75rem; color: var(--text-secondary); }
     .lotto-error { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.75rem 1rem; border-radius: var(--radius-sm); color: #fca5a5; margin-top: 0.5rem; font-size: 0.875rem; }
+
+    /* Clean Card Layout for Earthquakes */
+    .eq-card-single {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .eq-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .eq-row:last-child { border-bottom: none; }
+    .eq-label { color: var(--accent-cyan); font-weight: 600; font-size: 0.9rem; }
+    .eq-value { color: var(--text-primary); font-size: 0.95rem; text-align: right; }
 
     /* IPTV Player */
     .iptv-controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
@@ -339,8 +357,7 @@
           <p class="card-subtitle">YouTube channels and audio streaming</p>
         </div>
       </div>
-      
-      <!-- Complete Original Channels List -->
+
       <div class="form-group">
         <select class="form-select" id="channelSelect">
           <option value="">-- Select Channel --</option>
@@ -389,7 +406,7 @@
       </div>
     </section>
 
-    <!-- Entertainment Portal (All 24 Links Restored) -->
+    <!-- Entertainment Portal -->
     <section class="card">
       <div class="card-header">
         <div>
@@ -588,7 +605,7 @@
             return `
               <div class="widget">
                 <div style="color: ${city.color}; font-weight:700; font-size:1.1rem;">${city.name}</div>
-                <div class="widget-content" style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
+                <div class="widget-content" style="display:flex; justify-between; align-items:center; margin-top:0.5rem;">
                   <div>
                     <div style="font-size: 1.8rem; font-weight: 800;">${data.main.temp.toFixed(1)}°C</div>
                     <div style="text-transform: capitalize; color: var(--text-secondary); font-size: 0.875rem;">${data.weather[0].description}</div>
@@ -856,7 +873,7 @@
               const depth = row[depthIndex] || '000';
               const loc = row[locIndex] || 'Unknown';
               const direction = this.calculateDirection(lat, long);
-              row[locIndex] = `${depth.toString().padStart(3, '0')}km ${direction} of ${loc}`;
+              row[locIndex] = `${depth.toString().padStart(3, '0')} km ${direction} of ${loc}`;
             });
           }
           const columnsToHide = ['Latitude', 'Longitude', 'Depth'];
@@ -891,44 +908,38 @@
       }
 
       renderTable(data) {
-        if (!data || data.length === 0) {
+        if (!data || data.length < 2) {
           this.container.innerHTML = "<div class='lotto-small'>No data available.</div>";
           return;
         }
-        const thead = data[0];
-        const bodyRows = data.slice(1);
 
-        const table = document.createElement("table");
-        table.className = "lotto-table responsive-table";
-
-        const theadEl = document.createElement("thead");
-        const trHead = document.createElement("tr");
-        thead.forEach(h => {
-          const th = document.createElement("th");
-          th.className = "lotto-th";
-          th.innerHTML = `<strong>${h}</strong>`;
-          trHead.appendChild(th);
-        });
-        theadEl.appendChild(trHead);
-        table.appendChild(theadEl);
-
-        const tbody = document.createElement("tbody");
-        bodyRows.forEach((row) => {
-          const tr = document.createElement("tr");
-          tr.className = "lotto-tr";
-          row.forEach((cell, index) => {
-            const td = document.createElement("td");
-            td.className = "lotto-td";
-            td.textContent = cell;
-            td.setAttribute('data-label', thead[index]);
-            tr.appendChild(td);
-          });
-          tbody.appendChild(tr);
-        });
-        table.appendChild(tbody);
-
+        const headers = data[0];
+        const rows = data.slice(1);
         this.container.innerHTML = "";
-        this.container.appendChild(table);
+
+        rows.forEach(row => {
+          const cardEl = document.createElement("div");
+          cardEl.className = "eq-card-single";
+
+          headers.forEach((h, i) => {
+            const rowEl = document.createElement("div");
+            rowEl.className = "eq-row";
+
+            const labelEl = document.createElement("span");
+            labelEl.className = "eq-label";
+            labelEl.textContent = h;
+
+            const valEl = document.createElement("span");
+            valEl.className = "eq-value";
+            valEl.textContent = row[i] || '-';
+
+            rowEl.appendChild(labelEl);
+            rowEl.appendChild(valEl);
+            cardEl.appendChild(rowEl);
+          });
+
+          this.container.appendChild(cardEl);
+        });
       }
 
       updateTimestamp() {
