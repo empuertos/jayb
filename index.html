@@ -460,7 +460,7 @@
       </div>
     </section>
 
-    <!-- Entertainment Portal (All 24 Links Restored) -->
+    <!-- Entertainment Portal -->
     <section class="card">
       <div class="card-header">
         <div>
@@ -648,12 +648,23 @@
         setInterval(updateDateTime, 1000);
       }
 
-      getWeatherAnimClass(description) {
-        const desc = description.toLowerCase();
-        if (desc.includes('thunderstorm') || desc.includes('lightning')) return 'weather-thunder';
-        if (desc.includes('rain') || desc.includes('drizzle') || desc.includes('shower')) return 'weather-rainy';
-        if (desc.includes('cloud')) return 'weather-cloudy';
-        if (desc.includes('clear') || desc.includes('sun')) return 'weather-sunny';
+      /* Inayos at Pinag-ibayong Weather Animation Categorization */
+      getWeatherAnimClass(weatherItem) {
+        const main = (weatherItem.main || '').toLowerCase();
+        const desc = (weatherItem.description || '').toLowerCase();
+
+        if (main.includes('thunderstorm') || desc.includes('thunder') || desc.includes('lightning')) {
+          return 'weather-thunder';
+        }
+        if (main.includes('rain') || main.includes('drizzle') || desc.includes('rain') || desc.includes('shower')) {
+          return 'weather-rainy';
+        }
+        if (main.includes('cloud') || desc.includes('cloud') || desc.includes('overcast')) {
+          return 'weather-cloudy';
+        }
+        if (main.includes('clear') || desc.includes('sun') || desc.includes('clear')) {
+          return 'weather-sunny';
+        }
         return 'weather-cloudy';
       }
 
@@ -663,8 +674,11 @@
         try {
           const weatherPromises = this.config.cities.map(async (city) => {
             const response = await fetch(`${this.config.weatherWorkerURL}?q=${encodeURIComponent(city.query)}`);
+            if (!response.ok) throw new Error('Network response was not ok');
+
             const data = await response.json();
-            const animClass = this.getWeatherAnimClass(data.weather[0].description);
+            const weatherObj = data.weather && data.weather[0] ? data.weather[0] : { main: '', description: '' };
+            const animClass = this.getWeatherAnimClass(weatherObj);
 
             return `
               <div class="widget">
@@ -672,10 +686,10 @@
                 <div class="widget-content" style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
                   <div>
                     <div style="font-size: 1.8rem; font-weight: 800;">${data.main.temp.toFixed(1)}°C</div>
-                    <div style="text-transform: capitalize; color: var(--text-secondary); font-size: 0.875rem;">${data.weather[0].description}</div>
+                    <div style="text-transform: capitalize; color: var(--text-secondary); font-size: 0.875rem;">${weatherObj.description}</div>
                   </div>
                   <div class="weather-anim-box ${animClass}">
-                    <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="${data.weather[0].description}">
+                    <img src="https://openweathermap.org/img/wn/${weatherObj.icon}@2x.png" alt="${weatherObj.description}">
                   </div>
                 </div>
               </div>
@@ -685,7 +699,7 @@
           const weatherHTML = await Promise.all(weatherPromises);
           container.innerHTML = weatherHTML.join('');
         } catch (error) {
-          container.innerHTML = '<div class="widget">Failed to load weather data</div>';
+          container.innerHTML = '<div class="widget" style="color: var(--accent-pink);">Failed to load weather data</div>';
         }
       }
 
