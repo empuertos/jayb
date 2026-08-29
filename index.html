@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Steve's Professional Live Hub - Unified dashboard for weather, seismic activity, lotto results, and live streaming">
+  <meta name="keywords" content="live weather, Philippines, streaming, dashboard, PHIVOLCS, PCSO lotto">
+  <meta name="author" content="Steve">
+  <meta name="theme-color" content="#0f172a">
+  
+  <title>Steve's Unified Live Hub</title>
+  
+  <meta http-equiv="Permissions-Policy" content="autoplay=(), encrypted-media=(), picture-in-picture=()">
+  
+  <!-- HLS Library for Global IPTV Player -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <!-- Modern Vibrant CSS Framework -->
+  <style>
+    :root {
+      /* Vibrant Color Palette */
+      --bg-dark: #0f172a;
+      --bg-card: rgba(30, 41, 59, 0.7);
+      --accent-cyan: #06b6d4;
+      --accent-pink: #ec4899;
+      --accent-purple: #8b5cf6;
+      --accent-amber: #f59e0b;
+      --accent-emerald: #10b981;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-glow: rgba(255, 255, 255, 0.12);
+      
+      --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'Fira Code', 'Consolas', monospace;
+      
+      --radius-sm: 0.5rem;
+      --radius-md: 0.75rem;
+      --radius-lg: 1.25rem;
+      
+      --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { 
+      font-family: var(--font-primary); 
+      background: var(--bg-dark); 
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main); 
+      line-height: 1.6; 
+      overflow-x: hidden; 
+      min-height: 100vh;
+    }
+
+    .header {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      padding: 1.5rem 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid var(--border-glow);
+    }
+    .header h1 {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 2.25rem;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: -0.025em;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+    .grid { display: grid; gap: 1.5rem; }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glow);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      transition: transform var(--transition-normal), border-color var(--transition-normal);
+      margin-bottom: 1.5rem;
+    }
+    .card:hover { 
+      transform: translateY(-3px); 
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    
+    .card-title { 
+      font-size: 1.35rem; 
+      font-weight: 700;
+      color: var(--text-main); 
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-subtitle { color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem; }
+
+    /* Source Credits */
+    .credit-tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.375rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .credit-phivolcs { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .credit-pcso { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+
+    .widget { 
+      padding: 1.25rem; 
+      border-radius: var(--radius-md); 
+      background: rgba(15, 23, 42, 0.6); 
+      border: 1px solid var(--border-glow);
+    }
+    
+    .form-select, .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-glow);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color var(--transition-normal);
+    }
+    .form-select:focus, .form-input:focus { border-color: var(--accent-cyan); }
+
+    .btn {
+      background: linear-gradient(135deg, var(--accent-cyan), #0284c7);
+      color: white;
+      font-weight: 600;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: opacity var(--transition-normal);
+    }
+    .btn:hover { opacity: 0.9; }
+
+    .youtube-player { width: 100%; aspect-ratio: 16 / 9; border: none; border-radius: var(--radius-sm); }
+
+    .security-section {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 1rem;
+      border-radius: var(--radius-sm);
+      word-break: break-all;
+      border-left: 3px solid var(--accent-pink);
+    }
+
+    /* Tables */
+    .lotto-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 1rem; }
+    .lotto-th, .lotto-td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border-glow); }
+    .lotto-th { background: rgba(15, 23, 42, 0.8); color: var(--accent-cyan); font-weight: 600; }
+    .lotto-tr:hover { background: rgba(255, 255, 255, 0.03); }
+
+    .iptv-player-box { width: 100%; background: #000; border-radius: var(--radius-md); overflow: hidden; margin-top: 1rem; }
+    .iptv-video { width: 100%; aspect-ratio: 16/9; display: block; }
+    
+    .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; }
+    .link-card { 
+      background: rgba(15, 23, 42, 0.5); 
+      padding: 0.75rem; 
+      border-radius: var(--radius-sm); 
+      border: 1px solid var(--border-glow);
+      text-decoration: none;
+      color: var(--text-main);
+      font-size: 0.875rem;
+      transition: all var(--transition-normal);
+      display: block;
+      text-align: center;
+    }
+    .link-card:hover { background: var(--accent-purple); border-color: var(--accent-pink); transform: translateY(-2px); }
+
+    .footer { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.875rem; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 1.75rem; }
+      .responsive-table standard, .responsive-table thead, .responsive-table tbody, .responsive-table th, .responsive-table td, .responsive-table tr { display: block; }
+      .responsive-table thead tr { position: absolute; top: -9999px; left: -9999px; }
+      .responsive-table tr { margin-bottom: 1rem; border: 1px solid var(--border-glow); border-radius: var(--radius-sm); padding: 0.5rem; }
+      .responsive-table td { border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 0.5rem; text-align: right; }
+      .responsive-table td:before { content: attr(data-label); float: left; font-weight: 600; color: var(--accent-cyan); }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Steve's Unified Live Hub</h1>
+  </header>
+
+  <main class="container">
+    <!-- Date/Time Widget -->
+    <section class="card">
+      <div class="widget" style="text-align: center;">
+        <div style="color: var(--text-muted); font-size: 0.9rem;">Philippines Standard Time (PST)</div>
+        <div id="date" style="font-size: 1.1rem; margin-top: 0.25rem;">Loading date...</div>
+        <div id="ph-time" style="font-size: 2.5rem; font-weight: 800; color: var(--accent-cyan); margin-top: 0.25rem;">Loading time...</div>
+      </div>
+    </section>
+
+    <!-- Weather Dashboard -->
+    <section class="card">
+      <div style="margin-bottom: 1rem;">
+        <h2 class="card-title">🌤️ Weather Dashboard</h2>
+        <p class="card-subtitle">Real-time weather across major Philippine cities</p>
+      </div>
+      <div id="weatherContainer" class="grid grid-2">
+        <div class="widget">Loading weather data...</div>
+      </div>
+    </section>
+
+    <!-- PHIVOLCS Latest Earthquakes -->
+    <section class="card">
+      <div style="display:flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+        <div>
+          <h2 class="card-title">🌋 Latest Earthquakes</h2>
+          <p class="card-subtitle">Real-time seismic data feed</p>
+        </div>
+        <span class="credit-tag credit-phivolcs">Data Credit: PHIVOLCS</span>
+      </div>
+      
+      <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <button class="btn" id="phivolcsRefresh">Refresh Data</button>
+        <span id="phivolcsStatus" style="font-size: 0.8rem; color: var(--accent-amber);"></span>
+      </div>
+      
+      <div id="phivolcsContainer">
+        <div class="widget">Loading PHIVOLCS data…</div>
+      </div>
+      <div id="phivolcsUpdated" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;"></div>
+      <div id="phivolcsError" style="display:none; color: var(--accent-pink); margin-top: 0.5rem;"></div>
+    </section>
+
+    <!-- 3D Lotto Results -->
+    <section class="card">
+      <div style="display:flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+        <div>
+          <h2 class="card-title">🎲 3D Lotto Results</h2>
+          <p class="card-subtitle">Live draw result spreadsheet updates</p>
+        </div>
+        <span class="credit-tag credit-pcso">Data Credit: PCSO</span>
+      </div>
+
+      <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <button class="btn" id="manualRefresh">Refresh Results</button>
+        <span id="lottoStatus" style="font-size: 0.8rem; color: var(--accent-emerald);"></span>
+      </div>
+
+      <div id="tableContainer">
+        <div class="widget" id="loadingText">Loading PCSO Lotto results…</div>
+      </div>
+      <div id="lastUpdated" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;"></div>
+      <div id="errorMsg" style="display:none; color: var(--accent-pink); margin-top: 0.5rem;"></div>
+    </section>
+
+    <!-- Global IPTV Player -->
+    <section class="card">
+      <div style="margin-bottom: 1rem;">
+        <h2 class="card-title">📺 Global IPTV Player</h2>
+        <p class="card-subtitle">Stream live international television networks</p>
+      </div>
+
+      <div class="grid grid-2" style="margin-bottom: 1rem;">
+        <select id="countrySelect" class="form-select" onchange="loadChannels()">
+          <option value="ph" selected>🇵🇭 Philippines</option>
+          <option value="us">🇺🇸 United States</option>
+          <option value="gb">🇬🇧 United Kingdom</option>
+          <option value="jp">🇯🇵 Japan</option>
+        </select>
+
+        <select id="iptvChannelSelect" class="form-select" onchange="playChannel()">
+          <option value="">-- Select Channel --</option>
+        </select>
+      </div>
+
+      <div class="iptv-player-box">
+        <video id="iptvVideo" class="iptv-video" controls autoplay playsinline muted></video>
+      </div>
+
+      <div id="iptvStatus" style="font-size: 0.85rem; color: var(--accent-cyan); text-align: center; margin-top: 0.5rem;">Idle</div>
+    </section>
+
+    <!-- Live Media Hub -->
+    <section class="card">
+      <div style="margin-bottom: 1rem;">
+        <h2 class="card-title">📡 Live Media & Broadcast Hub</h2>
+        <p class="card-subtitle">YouTube streaming feeds & direct radio broadcasting</p>
+      </div>
+
+      <select class="form-select" id="channelSelect" style="margin-bottom: 1rem;">
+        <option value="">-- Select YouTube Channel --</option>
+        <option value="UCnf8Ejd3y2RboWNcOqHS24A">ATTY. RUPHIL F BAÑOC</option>
+        <option value="UCPTddoHsUattFCXD8u4p7Eg">ATTY. JURIL BROKA PATIÑO</option>
+        <option value="UC1S4Kg8_N5-1Rp6miCKEpsQ">XFM Cebu 88.3</option>
+        <option value="UCstEtN0pgOmCf02EdXsGChw">KAPAMILYA CHANNEL</option>
+        <option value="UCKL5hAuzgFQsyrsQKgU0Qng">GMA NETWORK</option>
+        <option value="UCiFx0kZFjR29u0uJxTSq5MQ">TV5 Philippines</option>
+        <option value="UCpOm2kv1upnIFoOT7rSp6hg">PCSO GOV</option>
+      </select>
+
+      <div id="playerContainer" style="display: none; margin-bottom: 1.5rem;">
+        <iframe class="youtube-player" id="livePlayer" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      
+      <div class="widget">
+        <h3 style="font-size: 1rem; color: var(--accent-pink); margin-bottom: 0.5rem;">🎵 Live Stream: RMN Cebu</h3>
+        <audio id="audioPlayer" controls style="width: 100%;">
+          <source src="https://audiostreaming-worker.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/" type="audio/mpeg">
+        </audio>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
+          <span id="streamStatus">Ready to play</span>
+          <button id="refreshAudio" class="btn" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">Reconnect</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Entertainment Portal -->
+    <section class="card">
+      <div style="margin-bottom: 1rem;">
+        <h2 class="card-title">🎬 Entertainment Portal</h2>
+        <p class="card-subtitle">Quick external streaming access</p>
+      </div>
+      <div class="link-grid">
+        <a class="link-card" href="https://yarrlist.net" target="_blank" rel="noopener">Yarrlist</a>
+        <a class="link-card" href="https://streamovieflix.netlify.app/" target="_blank" rel="noopener">Streamovieflix</a>
+        <a class="link-card" href="http://vid-us.vercel.app" target="_blank" rel="noopener">NeroFlix</a>
+        <a class="link-card" href="https://kisskh.co" target="_blank" rel="noopener">Kisskh</a>
+        <a class="link-card" href="https://www.lookmovie2.to" target="_blank" rel="noopener">LookMovie</a>
+        <a class="link-card" href="https://fluxtv.cc/" target="_blank" rel="noopener">Fluxtv</a>
+        <a class="link-card" href="https://braflix.watch" target="_blank" rel="noopener">Braflix</a>
+        <a class="link-card" href="https://pinoymoviepedia.ru/" target="_blank" rel="noopener">Pinoymoviepedia</a>
+      </div>
+    </section>
+
+    <!-- Security Tokens Section -->
+    <section class="card">
+      <h2 class="card-title" style="margin-bottom: 0.5rem;">🔒 Security Tokens</h2>
+      <div class="security-section">
+        <p><strong>G1st:</strong> 85551540X61863676X32342190X26286952X24740530X46010457X45940327X12473689X06767958X77048925</p>
+        <p style="margin-top: 0.5rem;"><strong>G2nd:</strong> 87930868X79693801X28198839X10787943X01642065X43405314X05831064X58539749X93700422X50207461</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2026 Steve's Unified Live Hub. All rights reserved.</p>
+    <p style="margin-top: 0.25rem;">Data sources credited to PHIVOLCS (Seismic) and PCSO (Lotto) respectively.</p>
+  </footer>
+
+  <script>
+    /* IPTV Logic */
+    const WORKER_BASE = 'https://iptv-proxy.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev';
+    const iptvVideo = document.getElementById('iptvVideo');
+    const iptvStatus = document.getElementById('iptvStatus');
+    const countrySelect = document.getElementById('countrySelect');
+    const iptvChannelSelect = document.getElementById('iptvChannelSelect');
+    let hls = null;
+
+    async function loadChannels() {
+      const code = countrySelect.value;
+      iptvStatus.innerText = 'Fetching channel index...';
+      iptvChannelSelect.innerHTML = '<option value="">-- Loading... --</option>';
+
+      try {
+        const res = await fetch(`${WORKER_BASE}/?mode=get_channels&country=${code}`);
+        const channels = await res.json();
+        iptvChannelSelect.innerHTML = '<option value="">-- Select Channel --</option>';
+        channels.forEach(ch => {
+          const opt = document.createElement('option');
+          opt.value = ch.id;
+          opt.innerText = ch.title;
+          iptvChannelSelect.appendChild(opt);
+        });
+        iptvStatus.innerText = 'Channels Loaded';
+      } catch (e) {
+        iptvStatus.innerText = 'Failed to load channels';
+      }
+    }
+
+    function playChannel() {
+      const streamId = iptvChannelSelect.value;
+      if (!streamId) return;
+      const proxiedUrl = `${WORKER_BASE}/?id=${encodeURIComponent(streamId)}`;
+      iptvStatus.innerText = 'Connecting to stream...';
+
+      if (hls) hls.destroy();
+
+      if (Hls.isSupported()) {
+        hls = new Hls();
+        hls.loadSource(proxiedUrl);
+        hls.attachMedia(iptvVideo);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          iptvStatus.innerText = 'Playing';
+          iptvVideo.play().catch(() => {});
+        });
+      } else if (iptvVideo.canPlayType('application/vnd.apple.mpegurl')) {
+        iptvVideo.src = proxiedUrl;
+        iptvVideo.play();
+      }
+    }
+
+    /* Core Hub Initialization */
+    class UnifiedLiveHub {
+      constructor() {
+        this.config = {
+          weatherWorkerURL: 'https://weather-worker.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/',
+          cities: [
+            { name: 'Manila', query: 'Manila,PH', color: 'var(--accent-pink)' },
+            { name: 'Talisay Cebu', query: 'Talisay,Cebu,PH', color: 'var(--accent-cyan)' },
+            { name: 'Cebu City', query: 'Cebu City,PH', color: 'var(--accent-emerald)' },
+            { name: 'Davao City', query: 'Davao City,PH', color: 'var(--accent-amber)' }
+          ]
+        };
+        this.init();
+      }
+
+      init() {
+        this.setupDateTime();
+        this.setupWeather();
+        this.setupMedia();
+      }
+
+      setupDateTime() {
+        const updateDateTime = () => {
+          const now = new Date();
+          const dateOptions = { timeZone: 'Asia/Manila', year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' };
+          const timeOptions = { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+          
+          document.getElementById('date').textContent = new Intl.DateTimeFormat('en-US', dateOptions).format(now);
+          document.getElementById('ph-time').textContent = new Intl.DateTimeFormat('en-US', timeOptions).format(now);
+        };
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+      }
+
+      async setupWeather() {
+        const container = document.getElementById('weatherContainer');
+        try {
+          const promises = this.config.cities.map(async (city) => {
+            const res = await fetch(`${this.config.weatherWorkerURL}?q=${encodeURIComponent(city.query)}`);
+            const data = await res.json();
+            return `
+              <div class="widget">
+                <div style="color: ${city.color}; font-weight:700;">${city.name}</div>
+                <div style="font-size: 1.5rem; font-weight: 800; margin-top: 0.25rem;">${data.main.temp.toFixed(1)}°C</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">${data.weather[0].description}</div>
+              </div>
+            `;
+          });
+          const html = await Promise.all(promises);
+          container.innerHTML = html.join('');
+        } catch (e) {
+          container.innerHTML = '<div class="widget">Weather unavailable</div>';
+        }
+      }
+
+      setupMedia() {
+        const select = document.getElementById('channelSelect');
+        const player = document.getElementById('livePlayer');
+        const container = document.getElementById('playerContainer');
+        
+        select.addEventListener('ch
