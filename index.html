@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Steve's Professional Live Hub - Unified dashboard for weather and streaming">
-  <meta name="keywords" content="live weather, Philippines, streaming, dashboard, PHIVOLCS, PCSO">
-  <meta name="author" content="Steve">
+  <meta name="description" content="Steve's Professional Live Hub - Unified dashboard for weather, earthquake, lotto, and streaming">
   <meta name="theme-color" content="#0f172a">
-  
   <title>Steve's Unified Live Hub</title>
   
   <meta http-equiv="Permissions-Policy" content="autoplay=(), encrypted-media=(), picture-in-picture=()">
@@ -15,7 +12,6 @@
   <!-- HLS Library for Global IPTV Player -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
-  <!-- Modern Colorful CSS Framework -->
   <style>
     :root {
       --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
@@ -103,7 +99,6 @@
     .card-title { font-size: 1.4rem; color: var(--text-primary); font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
     .card-subtitle { color: var(--text-secondary); font-size: 0.875rem; }
 
-    /* Credit Badges */
     .credit-badge {
       font-size: 0.75rem;
       font-weight: 700;
@@ -164,7 +159,6 @@
       border-left: 4px solid var(--accent-pink);
     }
 
-    /* Lotto Tables */
     .lotto-card { width: 100%; }
     .lotto-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 1rem; }
     .lotto-th, .lotto-td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--card-border); }
@@ -173,7 +167,6 @@
     .lotto-small { font-size: 0.75rem; color: var(--text-secondary); }
     .lotto-error { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); padding: 0.75rem 1rem; border-radius: var(--radius-sm); color: #fca5a5; margin-top: 0.5rem; font-size: 0.875rem; }
 
-    /* Clean Card Layout for Earthquakes */
     .eq-card-single {
       background: rgba(15, 23, 42, 0.6);
       border: 1px solid var(--card-border);
@@ -193,33 +186,10 @@
     .eq-label { color: var(--accent-cyan); font-weight: 600; font-size: 0.9rem; min-width: 100px; }
     .eq-value { color: var(--text-primary); font-size: 0.95rem; text-align: right; word-break: break-word; flex: 1; }
 
-    /* IPTV Player */
     .iptv-controls { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
     .iptv-player-box { width: 100%; background: #000; border-radius: var(--radius-md); overflow: hidden; }
     .iptv-video { width: 100%; aspect-ratio: 16/9; display: block; }
     .iptv-status { margin-top: 10px; font-size: 0.875rem; color: var(--accent-emerald); text-align: center; min-height: 20px; }
-
-    /* Links Grid */
-    .link-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; list-style: none; }
-    .link-list a { 
-      color: var(--text-primary); 
-      text-decoration: none; 
-      padding: 0.75rem 1rem; 
-      display: block; 
-      border-radius: var(--radius-sm); 
-      background: rgba(15, 23, 42, 0.5);
-      border: 1px solid var(--card-border);
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 500;
-      transition: var(--transition); 
-    }
-    .link-list a:hover { 
-      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(168, 85, 247, 0.2));
-      border-color: var(--accent-cyan); 
-      transform: translateY(-2px); 
-      color: #fff;
-    }
 
     .loading { display: inline-block; position: relative; width: 18px; height: 18px; vertical-align: middle; }
     .loading::after {
@@ -272,7 +242,7 @@
         <div class="card-header">
           <div>
             <h2 class="card-title">🌋 PHIVOLCS Latest Earthquakes</h2>
-            <div class="lotto-small">Refreshes automatically every 10 seconds.</div>
+            <div class="lotto-small">Refreshes automatically.</div>
           </div>
           <span class="credit-badge credit-phivolcs">Credit: PHIVOLCS</span>
         </div>
@@ -296,7 +266,7 @@
         <div class="card-header">
           <div>
             <h2 class="card-title">🎲 3D Lotto Results</h2>
-            <div class="lotto-small">Automatically refreshed every 30 seconds.</div>
+            <div class="lotto-small">Refreshes automatically.</div>
           </div>
           <span class="credit-badge credit-pcso">Credit: PCSO</span>
         </div>
@@ -421,6 +391,31 @@
   </footer>
 
   <script>
+    // Robust Fetcher with Fallback CORS Proxies
+    async function safeFetch(url) {
+      try {
+        const direct = await fetch(url, { cache: "no-cache" });
+        if (direct.ok) return await direct.text();
+      } catch (e) {
+        console.warn("Direct fetch failed for " + url + ", trying fallback proxy...");
+      }
+
+      // Try AllOrigins Proxy if direct worker fails
+      try {
+        const proxy1 = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+        const res1 = await fetch(proxy1);
+        if (res1.ok) return await res1.text();
+      } catch (e) {
+        console.warn("AllOrigins Proxy failed, trying CorsProxy...");
+      }
+
+      // Try CorsProxy.io if AllOrigins fails
+      const proxy2 = "https://corsproxy.io/?" + encodeURIComponent(url);
+      const res2 = await fetch(proxy2);
+      if (!res2.ok) throw new Error("All connections (direct & proxies) failed.");
+      return await res2.text();
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
       // Date & Time Handler
       function updateDateTime() {
@@ -436,7 +431,7 @@
       setInterval(updateDateTime, 1000);
       updateDateTime();
 
-      // Weather Handler with Fallback
+      // Weather Handler
       async function setupWeather() {
         const container = document.getElementById('weatherContainer');
         const cities = [
@@ -451,9 +446,8 @@
         try {
           const weatherPromises = cities.map(async (city) => {
             try {
-              const res = await fetch(`https://weather-worker.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/?q=${encodeURIComponent(city.query)}`);
-              if(!res.ok) throw new Error("HTTP error " + res.status);
-              const data = await res.json();
+              const text = await safeFetch(`https://weather-worker.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/?q=${encodeURIComponent(city.query)}`);
+              const data = JSON.parse(text);
               return `
                 <div class="widget">
                   <div style="color: ${city.color}; font-weight:700; font-size:1.1rem;">${city.name}</div>
@@ -467,7 +461,7 @@
                 </div>
               `;
             } catch(e) {
-              return `<div class="widget" style="color:#fca5a5;">${city.name}: Weather data unavailable (${e.message})</div>`;
+              return `<div class="widget" style="color:#fca5a5;">${city.name}: Weather unavailable</div>`;
             }
           });
           const htmls = await Promise.all(weatherPromises);
@@ -489,11 +483,9 @@
         if (errorEl) errorEl.style.display = "none";
 
         try {
-          const resp = await fetch("https://phivolcs.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/", { cache: "no-cache" });
-          if (!resp.ok) throw new Error(`HTTP Error ${resp.status}`);
-          const text = await resp.text();
-
+          const text = await safeFetch("https://phivolcs.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/");
           const lines = text.trim().split(/\r?\n/).filter(l => l.trim().length > 0);
+          
           if (lines.length === 0) {
             container.innerHTML = "<div class='lotto-small'>No earthquake data found.</div>";
             if (statusEl) statusEl.textContent = "";
@@ -530,7 +522,7 @@
         } catch (err) {
           if (container) container.innerHTML = "";
           if (errorEl) {
-            errorEl.textContent = "Unable to fetch PHIVOLCS data (" + err.message + "). Check CORS or Cloudflare Worker route.";
+            errorEl.textContent = "Unable to fetch PHIVOLCS data (" + err.message + ").";
             errorEl.style.display = "block";
           }
           if (statusEl) statusEl.textContent = "Failed";
@@ -551,11 +543,9 @@
         if (errorEl) errorEl.style.display = "none";
 
         try {
-          const resp = await fetch("https://sheets-worker.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/", { cache: "no-cache" });
-          if (!resp.ok) throw new Error(`HTTP Error ${resp.status}`);
-          const text = await resp.text();
-
+          const text = await safeFetch("https://sheets-worker.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/");
           const rows = text.trim().split("\n").map(r => r.split(",").map(c => c.replace(/^"|"$/g, "")));
+          
           if (!rows || rows.length === 0) {
             container.innerHTML = "<div class='lotto-small'>No data available.</div>";
             if (statusEl) statusEl.textContent = "";
@@ -571,7 +561,7 @@
 
           rows.slice(1).forEach(r => {
             html += "<tr class='lotto-tr'>";
-            r.forEach((c, idx) => html += `<td class="lotto-td" data-label="${rows[0][idx] || ''}">${c}</td>`);
+            r.forEach((c, idx) => html += `<td class="lotto-td">${c}</td>`);
             html += "</tr>";
           });
           html += "</tbody>";
@@ -585,7 +575,7 @@
         } catch (err) {
           if (container) container.innerHTML = "";
           if (errorEl) {
-            errorEl.textContent = "Unable to fetch Lotto data (" + err.message + "). Check CORS or Cloudflare Worker route.";
+            errorEl.textContent = "Unable to fetch Lotto data (" + err.message + ").";
             errorEl.style.display = "block";
           }
           if (statusEl) statusEl.textContent = "Failed";
@@ -609,9 +599,8 @@
         iptvChannelSelect.innerHTML = '<option value="">-- Loading... --</option>';
 
         try {
-          const res = await fetch(`${WORKER_BASE}/?mode=get_channels&country=${countrySelect.value}`);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const channels = await res.json();
+          const text = await safeFetch(`${WORKER_BASE}/?mode=get_channels&country=${countrySelect.value}`);
+          const channels = JSON.parse(text);
           iptvChannelSelect.innerHTML = '<option value="">-- Select Channel --</option>';
           channels.forEach(ch => {
             const opt = document.createElement('option');
