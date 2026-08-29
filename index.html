@@ -781,7 +781,7 @@
 
     manualRefresh.addEventListener("click", fetchAndRender);
 
-    /* PHIVOLCS Manager Class */
+    /* PHIVOLCS Manager Class - Fixed CSV Parsing */
     class PhivolcsManager {
       constructor() {
         this.url = "https://phivolcs.22afed28-f0b2-46d0-8804-c90e25c90bd4.workers.dev/";
@@ -800,7 +800,9 @@
       }
 
       init() {
-        this.refreshBtn.addEventListener("click", () => this.fetchData());
+        if (this.refreshBtn) {
+          this.refreshBtn.addEventListener("click", () => this.fetchData());
+        }
         this.fetchData();
         this.startAutoRefresh();
       }
@@ -837,54 +839,60 @@
         }
       }
 
+      // Safe CSV Splitter that handles quoted fields with commas accurately
       parseCSV(text) {
-        const rows = [];
         const lines = text.trim().split(/\r?\n/);
-        for (let line of lines) {
-          if (!line.trim()) continue;
-          // Regex to safely parse CSV fields even with commas inside quotes
-          const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
-          const row = matches.map(cell => cell.replace(/^"|"$/g, '').trim());
-          rows.push(row);
-        }
-        return rows;
+        return lines.map(line => {
+          const row = [];
+          let insideQuote = false;
+          let entry = '';
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+              insideQuote = !insideQuote;
+            } else if (char === ',' && !insideQuote) {
+              row.push(entry.trim().replace(/^"|"$/g, ''));
+              entry = '';
+            } else {
+              entry += char;
+            }
+          }
+          row.push(entry.trim().replace(/^"|"$/g, ''));
+          return row;
+        }).filter(r => r.length > 1 || r[0] !== '');
       }
 
       parseAndProcessData(csvText) {
         const parsed = this.parseCSV(csvText);
         if (parsed.length === 0) return [];
 
-        const headers = parsed[0].map(h => h.replace(/\s*\([^)]*\)/g, '').trim().toLowerCase());
+        const headers = parsed[0].map(h => h.toLowerCase());
         
-        // Find indices dynamically
+        // Find header indices dynamically
         let dateTimeIdx = headers.findIndex(h => h.includes("date") || h.includes("time"));
         let magIdx = headers.findIndex(h => h.includes("mag") || h.includes("magnitude"));
         let locIdx = headers.findIndex(h => h.includes("location") || h.includes("loc"));
 
-        // Fallbacks if header matching fails
+        // Default fallbacks if no header match
         if (dateTimeIdx === -1) dateTimeIdx = 0;
         if (magIdx === -1) magIdx = 1;
-        if (locIdx === -1) locIdx = headers.length - 1;
+        if (locIdx === -1) locIdx = 2;
 
         const results = [];
         const rows = parsed.slice(1, this.maxRows + 1);
 
         rows.forEach(row => {
-          if (row.length <= Math.max(dateTimeIdx, magIdx)) return;
+          if (row.length === 0) return;
 
           let dateTimeVal = row[dateTimeIdx] || '-';
           let magVal = row[magIdx] || '-';
+          
+          // Combine remaining cells for location if unquoted commas exist
+          let locVal = row.slice(locIdx).join(', ').trim();
+          if (!locVal) locVal = '-';
 
-          // Join all remaining columns for location if it was broken by unquoted commas
-          let locVal = '';
-          if (locIdx < row.length) {
-            locVal = row.slice(locIdx).join(', ');
-          } else {
-            locVal = row[row.length - 1] || '-';
-          }
-
-          // Clean Location string (Remove depth number like '005' before 'km')
-          locVal = locVal.replace(/^\d+\s*/, '').trim();
+          // Clean up location formatting if depth value precedes km (e.g. "005 km S..." -> "km S...")
+          locVal = locVal.replace(/^\d+\s*(?=km)/i, '');
 
           results.push({
             "Date-Time": dateTimeVal,
@@ -931,12 +939,14 @@
 
       updateTimestamp() {
         const now = new Date();
-        this.updatedEl.textContent = "Last updated: " + now.toLocaleString("en-US", { hour12: true });
+        if (this.updatedEl) {
+          this.updatedEl.textContent = "Last updated: " + now.toLocaleString("en-US", { hour12: true });
+        }
       }
 
-      setStatus(text) { this.statusEl.textContent = text; }
-      showError(message) { this.errorEl.textContent = message; this.errorEl.style.display = "block"; }
-      hideError() { this.errorEl.style.display = "none"; }
+      setStatus(text) { if (this.statusEl) this.statusEl.textContent = text; }
+      showError(message) { if (this.errorEl) { this.errorEl.textContent = message; this.errorEl.style.display = "block"; } }
+      hideError() { if (this.errorEl) this.errorEl.style.display = "none"; }
       showLoading() { if (this.loadingEl) this.loadingEl.style.display = "inline-block"; }
       hideLoading() { if (this.loadingEl) this.loadingEl.style.display = "none"; }
       startAutoRefresh() { this.interval = setInterval(() => this.fetchData(), this.refreshInterval); }
