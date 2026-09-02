@@ -1,0 +1,134 @@
+:root[data-theme="dark"] {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: #334155;
+  --accent: #38bdf8;
+  --meron: #ef4444;
+  --wala: #3b82f6;
+  --header-bg: #1e293b;
+}
+
+:root[data-theme="light"] {
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --border: #cbd5e1;
+  --accent: #0284c7;
+  --meron: #dc2626;
+  --wala: #2563eb;
+  --header-bg: #ffffff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+body { background: var(--bg); color: var(--text); padding: 1rem; transition: background 0.3s, color 0.3s; }
+.container { max-width: 1200px; margin: 0 auto; }
+
+.app-header { background: var(--card); padding: 1rem 1.5rem; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 1rem; }
+.app-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
+.app-header p { font-size: 0.85rem; color: var(--text-muted); }
+
+.theme-toggle-btn { background: var(--border); color: var(--text); border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+.page-nav { display: flex; gap: 0.5rem; margin-bottom: 1rem; overflow-x: auto; }
+.page-btn { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: bold; white-space: nowrap; }
+.page-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+.page-view { display: none; }
+.page-view.active { display: block; }
+
+.card { background: var(--card); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 1rem; }
+.section-title { font-size: 1.1rem; font-weight: bold; color: var(--accent); margin-bottom: 1rem; }
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+.form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+.form-group label { font-size: 0.85rem; font-weight: bold; color: var(--text-muted); }
+.form-group input, .form-group select, .form-group textarea { background: var(--bg); color: var(--text); border: 1px solid var(--border); padding: 0.6rem; border-radius: 6px; font-size: 0.9rem; outline: none; }
+
+.input-tab-header { display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+.input-tab-btn { background: none; border: none; color: var(--text-muted); padding: 0.5rem 1rem; cursor: pointer; font-weight: bold; }
+.input-tab-btn.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+.input-tab-content { display: none; }
+.input-tab-content.active { display: block; }
+
+.btn { background: var(--accent); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: bold; cursor: pointer; }
+.btn-secondary { background: #64748b; }
+.btn-action { background: #10b981; }
+.btn-danger { background: #ef4444; }
+.btn-print { background: #8b5cf6; }
+.btn-csv { background: #f59e0b; }
+
+/* TABLES */
+.table-responsive { overflow-x: auto; }
+.data-table, .match-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.85rem; }
+.data-table th, .data-table td, .match-table th, .match-table td { padding: 0.6rem; border: 1px solid var(--border); }
+.data-table th { background: var(--card); }
+
+/* PROGRAM SHEET */
+.program-sheet { background: white; color: black; padding: 1.5rem; border-radius: 8px; font-family: Arial, sans-serif; }
+.header-banner { text-align: center; border-bottom: 2px solid black; padding-bottom: 0.8rem; margin-bottom: 1rem; }
+.header-banner h2 { font-size: 1.4rem; margin-bottom: 0.2rem; }
+.header-banner h4 { font-size: 0.9rem; font-weight: normal; margin-bottom: 0.4rem; }
+.header-banner .presents { font-size: 0.8rem; font-weight: bold; letter-spacing: 2px; }
+.header-banner h1 { font-size: 1.8rem; color: #b91c1c; margin: 0.2rem 0; }
+.header-banner h3 { font-size: 1.1rem; }
+.header-banner .date-line { font-size: 0.9rem; font-weight: bold; margin-top: 0.3rem; }
+
+/* QR CODE BOX IN HEADER */
+.qr-box-container {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 6px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 110px;
+}
+.qr-image { width: 75px; height: 75px; display: block; }
+.qr-label { font-size: 7px; font-weight: bold; color: #1e293b; margin-top: 4px; line-height: 1.1; text-transform: uppercase; }
+.qr-url-link { font-size: 7px; color: #0284c7; text-decoration: underline; margin-top: 2px; word-break: break-all; }
+
+.match-table th, .match-table td { border: 1px solid #000; color: black; }
+.side-header th { font-size: 1rem; color: white; }
+.meron-bg { background: #dc2626 !important; }
+.wala-bg { background: #2563eb !important; }
+.col-header th { background: #e2e8f0; font-size: 0.75rem; }
+
+/* FIGHT CARDS */
+.fights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+.fight-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
+.side-box { flex: 1; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem; }
+.meron-side { background: rgba(239, 68, 68, 0.15); border-left: 4px solid var(--meron); margin-right: 0.4rem; }
+.wala-side { background: rgba(59, 130, 246, 0.15); border-right: 4px solid var(--wala); text-align: right; margin-left: 0.4rem; }
+.fight-num-box { font-weight: 800; font-size: 1.1rem; color: var(--accent); padding: 0 0.4rem; }
+
+/* MULTI-PAGE PRINT OPTIMIZATION (500+ FIGHTS) */
+@media print {
+  body { background: white; color: black; padding: 0; }
+  .no-print, .page-nav, .app-header { display: none !important; }
+  .page-view { display: none !important; }
+  #classicSchedulePage { display: block !important; }
+  .program-sheet { padding: 0; }
+  
+  @page { size: A4 portrait; margin: 10mm; }
+  thead { display: table-header-group; }
+  tr { page-break-inside: avoid; break-inside: avoid; }
+  
+  .match-table th, .match-table td { padding: 4px 2px !important; font-size: 10px !important; }
+  .qr-box-container { top: 5px; right: 10px; border: 1px solid #000; }
+}
+
+@media (max-width: 600px) {
+  .qr-box-container { position: static; margin: 10px auto 0 auto; max-width: 140px; }
+  .qr-image { width: 90px; height: 90px; }
+  .qr-label, .qr-url-link { font-size: 8px; }
+}

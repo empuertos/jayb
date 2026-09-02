@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Derby Matchmaker Pro</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- XLSX Library -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- HTML2Canvas Library for Image Capture -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+  <!-- NAVIGATION BAR -->
+  <nav class="navbar">
+    <div class="nav-brand">🐓 Derby Matchmaker Pro</div>
+    <div class="nav-links">
+      <button class="page-btn active" onclick="switchPage('setupPage', event)">1. Event Setup</button>
+      <button class="page-btn" onclick="switchPage('rosterPage', event)">2. Roster Management</button>
+      <button class="page-btn" onclick="switchPage('classicSchedulePage', event)">3. Fight Schedule</button>
+      <button class="page-btn" onclick="switchPage('cardsPage', event)">4. Match Cards</button>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- PAGE 1: EVENT SETUP -->
+    <div id="setupPage" class="page-section active">
+      <h2>Event Configuration</h2>
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Event Title</label>
+            <input type="text" id="eventTitle" value="4-COCK HACKBANG DERBY" />
+          </div>
+          <div class="form-group">
+            <label>Promoter / Host</label>
+            <input type="text" id="eventPromoter" value="NGGBC PROMOTION" />
+          </div>
+          <div class="form-group">
+            <label>Arena Name</label>
+            <input type="text" id="eventArena" value="GRAND TEJERO ARENA" />
+          </div>
+          <div class="form-group">
+            <label>Location / Address</label>
+            <input type="text" id="eventAddress" value="Tejero, Cebu City" />
+          </div>
+          <div class="form-group">
+            <label>Event Date</label>
+            <input type="date" id="eventDate" />
+          </div>
+          <div class="form-group">
+            <label>Derby Format (Rounds)</label>
+            <select id="derbyFormat">
+              <option value="3">3-Cock / Stag</option>
+              <option value="4" selected>4-Cock / Stag</option>
+              <option value="5">5-Cock / Stag</option>
+              <option value="6">6-Cock / Stag</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Max Weight Difference (Grams)</label>
+            <input type="number" id="maxDiff" value="60" />
+          </div>
+          <div class="form-group">
+            <label>Rest Buffer (Fights Gap)</label>
+            <input type="number" id="restBuffer" value="5" />
+          </div>
+        </div>
+
+        <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" onclick="resetFormOnly()">🧹 Clear Setup Form</button>
+          <button class="btn btn-danger" onclick="resetFullSystem()">⚠️ Full Reset (New Event)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 2: ROSTER MANAGEMENT -->
+    <div id="rosterPage" class="page-section">
+      <h2>Roster Management</h2>
+      
+      <!-- Excel / File Import Card -->
+      <div class="card" style="margin-bottom: 20px;">
+        <h3>📁 Import Entries</h3>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <input type="file" id="excelFile" accept=".xlsx, .xls, .csv" />
+          <button class="btn btn-secondary" onclick="importExcel()">Upload Excel</button>
+        </div>
+      </div>
+
+      <!-- Single Entry Form -->
+      <div class="card" style="margin-bottom: 20px;">
+        <h3>➕ Add Single Entry</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Entry Name</label>
+            <input type="text" id="entryName" placeholder="e.g. BALTAZAR FLYING" />
+          </div>
+          <div class="form-group">
+            <label>Owner / Manager</label>
+            <input type="text" id="entryOwner" placeholder="e.g. Steve Empuerto" />
+          </div>
+          <div class="form-group">
+            <label>Weight (Grams)</label>
+            <input type="number" id="entryWeight" placeholder="e.g. 2150" />
+          </div>
+          <div class="form-group">
+            <label>Leg Band / Wing Band (Optional)</label>
+            <input type="text" id="entryBand" placeholder="e.g. LB-102" />
+          </div>
+        </div>
+        <button class="btn btn-primary" style="margin-top: 10px;" onclick="addSingleEntry()">Add Entry</button>
+      </div>
+
+      <!-- Entry Table -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h3>Registered Roster (<span id="rosterCount">0</span>)</h3>
+          <button class="btn btn-danger btn-sm" onclick="clearRoster()">Clear Roster List</button>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Entry Name</th>
+                <th>Owner</th>
+                <th>Weight (g)</th>
+                <th>Band No.</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="rosterTableBody">
+              <!-- Dynamic Rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 20px; text-align: center;">
+          <button id="generateBtn" class="btn btn-success btn-lg">⚙️ Run Core Matchmaker Engine</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 3: FIGHT SCHEDULE (CLASSIC PROGRAM) -->
+    <div id="classicSchedulePage" class="page-section">
+      <div class="action-bar" style="margin-bottom: 15px;">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Print Fight Schedule</button>
+      </div>
+
+      <div class="program-sheet card">
+        <div class="program-header">
+          <h1 class="dispTitle">12-STAG / COCK MAIN EVENT</h1>
+          <h3 class="dispPromoter">NGGBC PROMOTION</h3>
+          <p><span class="dispArena">GRAND TEJERO ARENA</span> - <span class="dispAddress">Tejero, Cebu City</span></p>
+          <p class="dispDate">AUGUST 26, 2026</p>
+        </div>
+
+        <div class="program-banner" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid #ccc; margin-bottom: 15px;">
+          <div>
+            <h4>OFFICIAL MATCH LIST</h4>
+            <p style="font-size: 0.85rem; color: #555;">Scan QR code to view high-definition fight schedule online.</p>
+            <a id="programLink" href="#" target="_blank" style="font-size: 0.85rem; color: #007bff;">View HD Image</a>
+          </div>
+          <div>
+            <img id="programQrCode" src="" alt="QR Code" style="width: 120px; height: 120px; border: 1px solid #ddd;" />
+          </div>
+        </div>
+
+        <table class="classic-table">
+          <thead>
+            <tr>
+              <th>MATCH #</th>
+              <th>RED CORNER (ENTRY / WEIGHT)</th>
+              <th>VS</th>
+              <th>BLUE CORNER (ENTRY / WEIGHT)</th>
+              <th>DIFF</th>
+            </tr>
+          </thead>
+          <tbody id="classicTableBody">
+            <!-- Dynamic Fight Rows -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGE 4: MATCH CARDS -->
+    <div id="cardsPage" class="page-section">
+      <h2>Individual Match Cards</h2>
+      <div id="cardsContainer" class="cards-grid">
+        <!-- Dynamic Match Cards -->
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
